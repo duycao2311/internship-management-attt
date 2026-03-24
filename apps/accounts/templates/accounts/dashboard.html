@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <div class="text-center">
+    <img src="/static/ptit_logo.png" alt="PTIT Logo" style="height:60px; margin-bottom: 10px;">
+    <img src="/static/attt_logo.png" alt="ATTT Logo" style="height:60px; margin-bottom: 10px;">
+    <h2>Welcome, {{ request.user.username }}!</h2>
+    <p>Your role: <strong>{{ request.user.get_role_display }}</strong></p>
+    <a href="{% url 'logout' %}" class="btn btn-secondary mt-3">Logout</a>
+  </div>
+</div>
+{% endblock %}
