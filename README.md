@@ -40,7 +40,7 @@ cd internship-management-attt
 python -m venv venv
 venv\Scripts\activate      # Windows
 # or
-source venv/bin/activate   # Mac/Linux
+source .venv/bin/activate   # Mac/Linux
 ```
 
 ### 3. Install dependencies

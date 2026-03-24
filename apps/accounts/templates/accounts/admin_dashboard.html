@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-4">
+  <h2>Admin Dashboard</h2>
+  <p>Welcome, <strong>{{ request.user.username }}</strong> (Role: {{ request.user.get_role_display }})</p>
+  <nav class="mb-3">
+    <ul class="nav nav-pills">
+      <li class="nav-item"><a class="nav-link active" href="#">Admin Home</a></li>
+      <!-- Add more admin links here -->
+    </ul>
+  </nav>
+  <p>This is your admin dashboard. More features coming soon.</p>
+</div>
+{% endblock %}
