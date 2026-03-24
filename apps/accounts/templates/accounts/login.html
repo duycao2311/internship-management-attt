@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block extra_css %}<link rel="stylesheet" href="/static/css/login.css">{% endblock %}
+{% block content %}
+<div class="login-container">
+  <div class="text-center mb-4">
+    <img src="/static/images/logo-ptit.jpg" alt="PTIT Logo" height="60" class="me-2">
+    <img src="/static/images/logo-attt.jpg" alt="ATTT Logo" height="60">
+  </div>
+  <h2 class="mb-4 text-center">Login</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary w-100">Login</button>
+  </form>
+  {% include 'includes/messages.html' %}
+</div>
+{% endblock %}

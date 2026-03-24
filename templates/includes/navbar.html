@@ -1,0 +1,17 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <img src="/static/images/logo-ptit.jpg" alt="PTIT Logo" height="40" class="me-2">
+      <img src="/static/images/logo-attt.jpg" alt="ATTT Logo" height="40">
+      <span class="ms-2 fw-bold">Internship Management</span>
+    </a>
+    <div class="d-flex ms-auto">
+      {% if request.user.is_authenticated %}
+        <span class="navbar-text me-3">{{ request.user.username }} ({{ request.user.get_role_display }})</span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>

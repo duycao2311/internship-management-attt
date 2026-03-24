@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-4">
+  <h2>Student Dashboard</h2>
+  <p>Welcome, <strong>{{ request.user.username }}</strong> (Role: {{ request.user.get_role_display }})</p>
+  <div class="card-placeholder">
+    <!-- Thành viên team có thể thêm card, widget, hoặc bảng dữ liệu tại đây -->
+    Thêm nội dung/tiện ích cho sinh viên tại đây
+  </div>
+  {# Block mở rộng cho các thành phần dashboard #}
+  {% block student_extra %}{% endblock %}
+</div>
+{% endblock %}
