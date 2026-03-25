@@ -1,14 +1,107 @@
 {% extends 'base.html' %}
+{% block title %}Dashboard Điều Phối{% endblock %}
 {% block content %}
-<div class="mt-4">
-  <h2>Admin Dashboard</h2>
-  <p>Welcome, <strong>{{ request.user.username }}</strong> (Role: {{ request.user.get_role_display }})</p>
-  <nav class="mb-3">
-    <ul class="nav nav-pills">
-      <li class="nav-item"><a class="nav-link active" href="#">Admin Home</a></li>
-      <!-- Add more admin links here -->
-    </ul>
-  </nav>
-  <p>This is your admin dashboard. More features coming soon.</p>
+<div class="container-fluid mt-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold text-dark"><i class="bi bi-shield-lock-fill text-primary"></i> Bảng điều khiển Quản trị viên</h1>
+            <p class="fs-6 text-muted mb-0">Xin chào quản trị viên <strong>{{ request.user.username }}</strong>. Xem tổng quan hệ thống, quản lý thông tin đợt thực tập và điều phối tài khoản.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'admin_external_request_manager' %}" class="btn btn-success fw-bold shadow-sm mb-2 w-100 text-start text-white">
+                <i class="bi bi-briefcase-fill pe-2"></i> Duyệt Thực tập Ngoài 
+                {% if total_external_requests > 0 %}
+                <span class="badge bg-danger rounded-pill float-end mt-1 shadow-sm">{{ total_external_requests }} mới</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'admin_assignment_manager' %}" class="btn btn-warning fw-bold shadow-sm mb-2 w-100 text-start text-dark"><i class="bi bi-person-lines-fill pe-2"></i> Quản lý Thực tập SV (Assignments)</a>
+            <a href="{% url 'admin_period_manager' %}" class="btn btn-info fw-bold shadow-sm mb-2 w-100 text-start text-dark"><i class="bi bi-calendar-range-fill pe-2"></i> Quản lý Kỳ Thực tập</a>
+            <a href="{% url 'admin_mapping_manager' %}" class="btn btn-primary fw-bold shadow-sm mb-2 w-100 text-start"><i class="bi bi-diagram-3-fill pe-2"></i> Quản lý Phân công Giảng viên</a>
+            <a href="/admin/" class="btn btn-dark fw-bold shadow-sm w-100 text-start" target="_blank"><i class="bi bi-gear-fill pe-2"></i> Hệ thống Quản trị (Admin-Core)</a>
+        </div>
+    </div>
+
+    <!-- Section 1: Chỉ báo Nhân sự -->
+    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2">1. Quy mô Mạng lưới Thực tập</h5>
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3 h-100 bg-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted fw-bold small mb-1">Tổng số Sinh viên</p>
+                            <h2 class="fw-bold text-dark mb-0">{{ total_students }} <span class="fs-6 fw-normal text-muted">người</span></h2>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-3 text-primary d-flex align-items-center justify-content-center">
+                            <i class="bi bi-mortarboard-fill fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-success border-4 rounded-3 h-100 bg-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted fw-bold small mb-1">Tổng số Doanh nghiệp</p>
+                            <h2 class="fw-bold text-dark mb-0">{{ total_departments }} <span class="fs-6 fw-normal text-muted">đơn vị</span></h2>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-circle p-3 text-success d-flex align-items-center justify-content-center">
+                            <i class="bi bi-building-fill fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 border-start border-info border-4 rounded-3 h-100 bg-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted fw-bold small mb-1">Tổng số Giảng viên</p>
+                            <h2 class="fw-bold text-dark mb-0">{{ total_lecturers }} <span class="fs-6 fw-normal text-muted">người</span></h2>
+                        </div>
+                        <div class="bg-info bg-opacity-10 rounded-circle p-3 text-info d-flex align-items-center justify-content-center">
+                            <i class="bi bi-person-badge-fill fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Chỉ báo Tuyển dụng và Kết nối -->
+    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2">2. Tổng quan Tuyển dụng & Báo cáo</h5>
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100 bg-light text-center p-3 hover-shadow">
+                <h6 class="text-muted text-uppercase fw-bold small mb-3">Tin Tuyển dụng</h6>
+                <div class="display-5 fw-bold text-dark mb-1">{{ total_posts }}</div>
+                <div class="small text-muted"><i class="bi bi-briefcase-fill text-muted me-1"></i>Vị trí đang mở</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100 bg-light text-center p-3 hover-shadow">
+                <h6 class="text-muted text-uppercase fw-bold small mb-3">Hồ sơ Ứng tuyển</h6>
+                <div class="display-5 fw-bold text-dark mb-1">{{ total_applications }}</div>
+                <div class="small text-muted"><i class="bi bi-inbox-fill text-muted me-1"></i>Đơn nộp hệ thống</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100 bg-light text-center p-3 hover-shadow">
+                <h6 class="text-muted text-uppercase fw-bold small mb-3">SV đang Thực tập</h6>
+                <div class="display-5 fw-bold text-primary mb-1">{{ total_assignments }}</div>
+                <div class="small text-muted"><i class="bi bi-person-lines-fill text-primary me-1"></i>Đã phân công</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100 bg-light text-center p-3 hover-shadow">
+                <h6 class="text-muted text-uppercase fw-bold small mb-3">Báo cáo Hàng tuần</h6>
+                <div class="display-5 fw-bold text-success mb-1">{{ total_weekly_reports }}</div>
+                <div class="small text-muted"><i class="bi bi-journal-check text-success me-1"></i>Báo cáo sinh viên</div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

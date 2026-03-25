@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Phân công Giảng viên{% endblock %}
+{% block content %}
+<div class="mt-4 mb-4 pb-2 border-bottom d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold text-dark"><i class="bi bi-diagram-3-fill text-primary"></i> Phân công Giảng viên - Doanh nghiệp</h2>
+        <p class="text-muted mb-0">Quản lý danh sách giảng viên phụ trách thực tập tại các doanh nghiệp</p>
+    </div>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Về lại Dashboard</a>
+</div>
+
+<div class="row">
+    <!-- Cột bên trái: Danh sách đã Gán -->
+    <div class="col-lg-8 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-link-45deg"></i> Danh sách Phân công Đang Hoạt động</h5>
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Thuộc Doanh nghiệp</th>
+                                <th>Giảng viên Phụ trách</th>
+                                <th>Thời gian Cập nhật</th>
+                                <th class="text-end pe-3">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mapping in mappings %}
+                            <tr>
+                                <td class="ps-3 fw-bold text-primary">{{ mapping.department.organization_name }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-2">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <span class="d-block fw-bold">{{ mapping.lecturer.user.get_full_name|default:mapping.lecturer.user.username }}</span>
+                                            <small class="text-muted">{{ mapping.lecturer.user.email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ mapping.created_at|date:"d/m/Y" }}</td>
+                                <td class="text-end pe-3">
+                                    <a href="{% url 'admin_mapping_edit' mapping.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="bi bi-diagram-2 text-muted opacity-50 mb-3 d-block" style="font-size: 3rem;"></i>
+                                    Hiện chưa có phân công nào được thiết lập.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0 text-end py-3">
+                <a href="{% url 'admin_mapping_create' %}" class="btn btn-primary shadow-sm fw-bold"><i class="bi bi-plus-lg"></i> Thêm Phân công Mới</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cột bên phải: Danh sách Bị Bỏ Quên (Chưa gán) -->
+    <div class="col-lg-4 mb-4">
+        <h5 class="fw-bold mb-3 text-warning"><i class="bi bi-exclamation-triangle-fill"></i> Cảnh báo: Doanh nghiệp Chưa có Giảng viên</h5>
+        <div class="card shadow-sm border-0 border-top border-warning border-4">
+            <div class="card-body">
+                <p class="text-muted small mb-3">Những doanh nghiệp dưới đây chưa được phân công giảng viên phụ trách. Sinh viên chọn thực tập tại đây sẽ chưa có giảng viên hướng dẫn mặc định.</p>
+                <ul class="list-group list-group-flush">
+                    {% for dept in unassigned_departments %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="fw-bold">{{ dept.organization_name }}</span>
+                        <a href="{% url 'admin_mapping_create_with_dept' dept.id %}" class="badge bg-warning text-dark text-decoration-none shadow-sm">Chỉ định ngay</a>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item px-0 text-success fw-bold border-0 text-center py-4">
+                        <i class="bi bi-check-circle-fill d-block fs-1 mb-2"></i> Tuyệt vời!<br><small class="text-muted fw-normal">Tất cả doanh nghiệp tham gia đều đã có giảng viên phụ trách.</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

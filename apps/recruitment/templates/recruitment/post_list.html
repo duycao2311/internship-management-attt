@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý tin tuyển dụng{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h2>Danh sách tin đăng của bạn</h2>
+    <a href="{% url 'recruitment:department_post_create' %}" class="btn btn-primary">Tạo tin mới</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Trạng thái</th>
+                        <th>Hạn nộp</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                    <tr>
+                        <td>{{ post.title }}</td>
+                        <td>
+                            {% if post.status == 'open' %}
+                                <span class="badge bg-success">{{ post.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ post.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if post.deadline %}
+                                {{ post.deadline|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">Không có</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ post.created_at|date:"d/m/Y H:i" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'recruitment:department_post_update' post.pk %}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                            <a href="{% url 'recruitment:department_post_delete' post.pk %}" class="btn btn-sm btn-outline-danger">Xoá</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 mb-3 d-block"></i>
+                            Bạn chưa tạo tin đăng tuyển nào. Hãy bấm nút "Tạo tin mới" để bắt đầu tìm kiếm ứng viên.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

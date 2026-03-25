@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Sinh viên Hướng dẫn{% endblock %}
+{% block content %}
+<div class="mt-4 mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold text-dark"><i class="bi bi-bar-chart-fill text-primary"></i> Tổng quan Hướng dẫn Thực tập</h2>
+        <p class="text-muted mb-0">Theo dõi tiến độ báo cáo và đánh giá năng lực Sinh viên được phân công.</p>
+    </div>
+</div>
+
+<!-- Bộ Thống kê & Phân tích (Analytics Dashboard) -->
+<div class="row mb-5">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-4 border-primary h-100">
+            <div class="card-body">
+                <h6 class="text-muted fw-bold mb-1 text-uppercase small">Tổng Sinh viên</h6>
+                <h2 class="text-dark mb-1 fw-bold">{{ metrics.total_students }}</h2>
+                <div class="small fw-bold {% if metrics.students_no_reports > 0 %}text-danger{% else %}text-success{% endif %}">
+                    {% if metrics.students_no_reports > 0 %}
+                    <i class="bi bi-exclamation-triangle-fill"></i> Có {{ metrics.students_no_reports }} SV chưa nộp gì
+                    {% else %}
+                    <i class="bi bi-check-circle-fill"></i> 100% SV đã nộp bài
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-4 border-info h-100">
+            <div class="card-body">
+                <h6 class="text-muted fw-bold mb-1 text-uppercase small">Báo cáo Hàng tuần</h6>
+                <h2 class="text-dark mb-1 fw-bold">{{ metrics.total_weekly }}</h2>
+                <div class="small fw-bold {% if metrics.weekly_waiting > 0 %}text-warning text-darken{% else %}text-success{% endif %}">
+                    {% if metrics.weekly_waiting > 0 %}
+                    <i class="bi bi-clock-history"></i> {{ metrics.weekly_waiting }} BC tuần đang chờ chấm
+                    {% else %}
+                    <i class="bi bi-check2-all"></i> Đã chấm hết loại này
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-4 border-success h-100">
+            <div class="card-body">
+                <h6 class="text-muted fw-bold mb-1 text-uppercase small">Báo cáo Tổng kết</h6>
+                <h2 class="text-dark mb-1 fw-bold">{{ metrics.total_final }}</h2>
+                <div class="small fw-bold {% if metrics.final_waiting > 0 %}text-warning text-darken{% else %}text-muted{% endif %}">
+                    {% if metrics.final_waiting > 0 %}
+                    <i class="bi bi-clock-history"></i> {{ metrics.final_waiting }} BC cuối kỳ chờ chấm
+                    {% else %}
+                    <i class="bi bi-check2-all"></i> Đã xử lý (hoặc chưa phát sinh)
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100 {% if metrics.total_waiting > 0 %}bg-danger bg-opacity-10 border-danger border{% else %}bg-light border{% endif %}">
+            <div class="card-body text-center d-flex flex-column justify-content-center">
+                <h6 class="fw-bold mb-2 {% if metrics.total_waiting > 0 %}text-danger{% else %}text-muted{% endif %}">TỔNG CẦN CHẤM GẤP</h6>
+                <h1 class="mb-0 fw-bold {% if metrics.total_waiting > 0 %}text-danger{% else %}text-dark{% endif %} display-4">{{ metrics.total_waiting }}</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="fw-bold text-dark mb-3"><i class="bi bi-people-fill text-secondary"></i> Danh sách Chăm sóc Từng sinh viên</h4>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Sinh viên</th>
+                        <th>Doanh nghiệp thực tập</th>
+                        <th>Vị trí</th>
+                        <th>Thời khoảng</th>
+                        <th class="text-center">Số báo cáo nộp</th>
+                        <th>Tiến độ</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td class="ps-3 fw-bold text-primary">
+                            {{ assignment.application.student.user.get_full_name|default:assignment.application.student.user.username }}
+                            <br><small class="text-muted fw-normal">{{ assignment.application.student.user.email }}</small>
+                        </td>
+                        <td>{{ assignment.application.post.department.organization_name }}</td>
+                        <td>{{ assignment.application.post.title }}</td>
+                        <td>
+                            {% if assignment.start_date and assignment.end_date %}
+                                <span class="badge bg-light text-dark fw-normal border">{{ assignment.start_date|date:"d/m/Y" }} - {{ assignment.end_date|date:"d/m/Y" }}</span>
+                            {% else %}
+                                <span class="text-muted small fst-italic">Thời gian chưa chốt</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-info rounded-pill fs-6 text-dark">{{ assignment.weekly_reports.count }}</span>
+                        </td>
+                        <td>
+                            {% if assignment.final_report %}
+                                <span class="badge bg-success">Đã Tổng kết</span>
+                            {% elif assignment.weekly_reports.exists %}
+                                <span class="badge bg-primary">Đang thực hiện</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Ca mới (Chưa nộp)</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'reports:lecturer_student_detail' assignment.id %}" class="btn btn-sm btn-outline-primary fw-bold">Theo dõi & Chấm <i class="bi bi-chevron-right"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <div class="opacity-50 mb-3">
+                                <i class="bi bi-person-video3" style="font-size: 3rem;"></i>
+                            </div>
+                            <h5>Trang giấy trắng!</h5>
+                            <p>Nhà trường hiện chưa phân công sinh viên nào cho bạn hướng dẫn trong kỳ này.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

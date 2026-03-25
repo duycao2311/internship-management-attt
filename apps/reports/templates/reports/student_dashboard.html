@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Tiến độ Thực tập của tôi{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <h2>Tiến độ Thực tập</h2>
+    <p class="text-muted">Theo dõi và quản lý việc nộp báo cáo định kỳ của đợt thực tập.</p>
+</div>
+
+<div class="row">
+    <!-- Cột thông tin Assignment -->
+    <div class="col-md-5 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thông tin Phân công</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0">
+                        <strong class="text-muted d-block small">Doanh nghiệp thực tập:</strong>
+                        <span class="fs-6 fw-bold">{{ assignment.application.post.department.organization_name }}</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong class="text-muted d-block small">Vị trí:</strong>
+                        <span>{{ assignment.application.post.title }}</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong class="text-muted d-block small">Giảng viên hướng dẫn:</strong>
+                        {% if assignment.lecturer %}
+                            <span class="text-primary fw-bold">{{ assignment.lecturer.user.get_full_name|default:assignment.lecturer.user.username }}</span> <br>
+                            <small>Khoa: {{ assignment.lecturer.department }} - {{ assignment.lecturer.user.email }}</small>
+                        {% else %}
+                            <span class="text-warning fw-bold"><i class="bi bi-hourglass-split"></i> Đang chờ phân công Giảng viên</span>
+                        {% endif %}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong class="text-muted d-block small">Thời hạn:</strong>
+                        {% if assignment.start_date and assignment.end_date %}
+                            Từ <span class="fw-bold">{{ assignment.start_date|date:"d/m/Y" }}</span> đến <span class="fw-bold">{{ assignment.end_date|date:"d/m/Y" }}</span>
+                        {% else %}
+                            <span class="text-muted fst-italic">Chưa có quyết định ngày cụ thể</span>
+                        {% endif %}
+                    </li>
+                    <li class="list-group-item px-0">
+                        <strong class="text-muted d-block small">Trạng thái kỳ:</strong>
+                        {% if assignment.is_active %}
+                            <span class="badge bg-success">Đang diễn ra</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Đã kết thúc</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cột Điều hướng luồng Menu -->
+    <div class="col-md-7 mb-4">
+        <div class="row h-100">
+            <div class="col-12 mb-3">
+                <div class="card shadow-sm text-center py-4 border-0 bg-light rounded-3">
+                    <div class="card-body">
+                        <i class="bi bi-calendar-check fs-1 text-info mb-2 d-block"></i>
+                        <h5 class="fw-bold">Báo cáo hàng tuần</h5>
+                        <p class="text-muted small">Cập nhật tiến độ công việc mỗi tuần. Đã nộp: <strong>{{ weekly_count }}</strong> bản.</p>
+                        <a href="{% url 'reports:weekly_report_list' %}" class="btn btn-outline-info w-75">Quản lý & Nộp báo cáo tuần</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card shadow-sm text-center py-4 border-0 rounded-3 text-white" style="background: linear-gradient(135deg, #198754, #20c997);">
+                    <div class="card-body">
+                        <i class="bi bi-award fs-1 mb-2 d-block"></i>
+                        <h5 class="fw-bold text-white">Báo cáo tổng kết</h5>
+                        <p class="text-light small">
+                            {% if has_final %}
+                                Bạn đã hoàn thành việc nộp điểm và nộp báo cáo cuối kì.
+                            {% else %}
+                                Bạn cần nộp tổng kết khi kỳ thực tập kết thúc.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'reports:final_report_detail' %}" class="btn btn-light text-success w-75 fw-bold">
+                            {% if has_final %}Xem tổng kết{% else %}Nộp ngay{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

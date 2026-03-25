@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Báo cáo Tổng kết{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <a href="{% url 'reports:student_dashboard' %}" class="text-decoration-none text-muted">&larr; Quay lại trang tóm tắt</a>
+    <h2 class="mt-2">Chi tiết Báo cáo Tổng kết</h2>
+</div>
+
+<div class="card shadow-sm border-0 mb-5">
+    <div class="card-body p-4">
+        <h4 class="text-primary fw-bold">{{ report.title }}</h4>
+        <p class="text-muted small">Nộp ngày: {{ report.created_at|date:"d/m/Y H:i" }} | Cập nhật lần cuối: {{ report.updated_at|date:"d/m/Y H:i" }}</p>
+        <hr>
+        
+        <div class="mt-4 mb-4" style="white-space: pre-wrap;">{{ report.content }}</div>
+        
+        {% if report.attachment %}
+        <div class="alert alert-info d-flex align-items-center mb-4">
+            <i class="bi bi-file-earmark-pdf fs-3 me-3"></i>
+            <div>
+                <strong>Tài liệu đính kèm (Bản in bản đầy đủ)</strong><br>
+                <a href="{{ report.attachment.url }}" target="_blank" class="text-decoration-none fw-bold">Tải xuống file tại đây</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <hr class="mt-5">
+        <h5 class="fw-bold mb-3 text-success">Phê duyệt & Nhận xét của Giảng viên</h5>
+        {% if report.feedback %}
+            <div class="p-4 bg-light rounded border border-start-0 border-end-0 border-bottom-0 border-success border-4">
+                <div style="white-space: pre-wrap;">{{ report.feedback.feedback_content }}</div>
+            </div>
+        {% else %}
+            <p class="text-muted fst-italic">Giảng viên hướng dẫn chưa để lại nhận xét chốt điểm trên hệ thống.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

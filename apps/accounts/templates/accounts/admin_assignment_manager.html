@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Phân công Thực tập{% endblock %}
+{% block content %}
+<div class="mt-4 mb-4 pb-2 border-bottom d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold text-dark"><i class="bi bi-person-lines-fill text-warning"></i> Quản lý Thực tập SV (Assignments)</h2>
+        <p class="text-muted mb-0">Theo dõi thông tin và điều chỉnh Giảng viên/Trạng thái của tất cả Sinh viên đang thực tập.</p>
+    </div>
+    <div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Về lại Dashboard</a>
+    </div>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Lọc theo Giảng viên</label>
+                <select name="lecturer" class="form-select form-select-sm">
+                    <option value="">-- Tất cả Giảng viên --</option>
+                    <option value="none" {% if selected_lecturer == 'none' %}selected{% endif %}>[Chưa có GV hướng dẫn]</option>
+                    {% for lec in lecturers %}
+                    <option value="{{ lec.id }}" {% if selected_lecturer == lec.id|stringformat:"i" %}selected{% endif %}>{{ lec.user.get_full_name|default:lec.user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Lọc theo Doanh nghiệp</label>
+                <select name="department" class="form-select form-select-sm">
+                    <option value="">-- Tất cả Doanh nghiệp --</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"i" %}selected{% endif %}>{{ dept.organization_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted">Trạng thái Hoạt động</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">-- Tất cả Trạng thái --</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Đang Hoạt động</option>
+                    <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Tạm ngưng</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-sm btn-primary fw-bold px-4 shadow-sm"><i class="bi bi-funnel-fill"></i> Lọc dữ liệu</button>
+                <a href="{% url 'admin_assignment_manager' %}" class="btn btn-sm btn-outline-secondary ms-1">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 border-top border-warning border-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Sinh viên</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Giảng viên Hướng dẫn</th>
+                        <th>Thời gian</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-dark">{{ assignment.application.student.user.get_full_name|default:assignment.application.student.user.username }}</div>
+                            <div class="small text-muted">{{ assignment.application.student.student_id|default:"Chưa có MSV" }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ assignment.application.post.department.organization_name }}</div>
+                            <div class="small text-muted text-truncate" style="max-width: 200px;" title="{{ assignment.application.post.title }}">{{ assignment.application.post.title }}</div>
+                        </td>
+                        <td>
+                            {% if assignment.lecturer %}
+                            <div class="fw-bold text-primary">{{ assignment.lecturer.user.get_full_name|default:assignment.lecturer.user.username }}</div>
+                            {% else %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="bi bi-exclamation-triangle-fill"></i> Chưa có GV</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small">
+                                <div><span class="text-muted">Từ:</span> <strong class="text-dark">{{ assignment.start_date|date:"d/m/Y"|default:"??/??/????" }}</strong></div>
+                                <div><span class="text-muted">Đến:</span> <strong class="text-dark">{{ assignment.end_date|date:"d/m/Y"|default:"??/??/????" }}</strong></div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {% if assignment.is_active %}
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1"><i class="bi bi-check-circle-fill"></i> Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2 py-1"><i class="bi bi-pause-circle-fill"></i> Tạm ngưng</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4 text-nowrap">
+                            <form action="{% url 'admin_assignment_toggle_active' assignment.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                {% if assignment.is_active %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Tạm ngưng Thực tập"><i class="bi bi-pause-fill"></i></button>
+                                {% else %}
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Khôi phục Hoạt động"><i class="bi bi-play-fill"></i></button>
+                                {% endif %}
+                            </form>
+                            <a href="{% url 'admin_assignment_edit' assignment.id %}" class="btn btn-sm btn-light border shadow-sm ms-1" title="Sửa chi tiết">
+                                <i class="bi bi-pencil-square"></i> Cập nhật
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox-fill text-muted opacity-50 mb-3 d-block" style="font-size: 3rem;"></i>
+                            Không có kết quả Assignment nào khớp với dữ liệu tìm kiếm!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

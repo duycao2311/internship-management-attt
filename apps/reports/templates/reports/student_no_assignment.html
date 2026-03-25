@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Chưa có phân công thực tập{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-9">
+        <div class="card shadow-sm border-0 border-top border-warning border-4 text-center py-5">
+            <div class="card-body px-5">
+                <i class="bi bi-person-workspace text-warning display-1 mb-3"></i>
+                <h3 class="fw-bold">Chưa có Giảng viên hướng dẫn</h3>
+                <p class="text-muted mt-3 mb-4 fs-5">
+                    Hệ thống Báo cáo chỉ được kích hoạt khi quy trình thực tập của bạn đã được chốt chính thức.
+                </p>
+                
+                <div class="text-start bg-light p-4 rounded mb-5 d-inline-block text-muted mx-auto border" style="max-width: 550px">
+                    <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-list-check"></i> Các bước để bắt đầu báo cáo tuần:</h6>
+                    <ul class="mb-0 ps-3">
+                        <li class="mb-2"><strong>Bước 1:</strong> Nộp đơn ứng tuyển một Vị trí Thực tập.</li>
+                        <li class="mb-2"><strong>Bước 2:</strong> Chờ Doanh nghiệp ấn nút <em class="text-success">Chấp nhận (Accept)</em>.</li>
+                        <li class="mb-2"><strong>Bước 3:</strong> Bạn bấm <em class="text-primary">Xác nhận</em> kết quả thực tập chính thức.</li>
+                        <li><strong>Bước 4:</strong> Nhà trường sẽ tiến hành phân công Giảng viên cho bạn.</li>
+                    </ul>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'recruitment:student_post_list' %}" class="btn btn-outline-primary px-4 py-2"><i class="bi bi-search"></i> Xem tin tuyển dụng</a>
+                    <a href="{% url 'recruitment:student_application_list' %}" class="btn btn-outline-secondary px-4 py-2"><i class="bi bi-clock-history"></i> Lịch sử ứng tuyển</a>
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-primary px-4 py-2"><i class="bi bi-house-door"></i> Về trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

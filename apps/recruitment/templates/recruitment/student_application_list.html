@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Lịch sử ứng tuyển{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <h2>Lịch sử ứng tuyển của tôi</h2>
+    <p class="text-muted">Theo dõi danh sách và tiến độ các công việc bạn đã nộp CV</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Công việc</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Ngày nộp</th>
+                        <th>CV sử dụng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="align-middle fw-bold">
+                            <a href="{% url 'recruitment:student_post_detail' app.post.pk %}" class="text-decoration-none">
+                                {{ app.post.title }}
+                            </a>
+                        </td>
+                        <td class="align-middle">{{ app.post.department.organization_name }}</td>
+                        <td class="align-middle">{{ app.applied_at|date:"d/m/Y" }}</td>
+                        <td class="align-middle">
+                            {% if app.cv %}
+                                <a href="{{ app.cv.file.url }}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-file-earmark-text"></i> {{ app.cv.title }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">CV đã bị xóa</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">
+                            {% if app.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                            {% elif app.status == 'accepted' %}
+                                <div class="mb-1"><span class="badge bg-success">Doanh nghiệp Chấp nhận</span></div>
+                                {% if app.assignment %}
+                                    <span class="badge bg-primary text-white"><i class="bi bi-star-fill text-warning"></i> Điểm thực tập chính thức</span>
+                                {% else %}
+                                    <a href="{% url 'recruitment:student_confirm_placement' app.pk %}" class="btn btn-sm btn-outline-success fw-bold py-0 mt-1">Chốt đi thực tập <i class="bi bi-check-circle"></i></a>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-danger">Từ chối</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 mb-3 d-block"></i>
+                            Bạn chưa ứng tuyển vị trí nào.<br>
+                            <a href="{% url 'recruitment:student_post_list' %}" class="btn btn-outline-primary mt-3">Tìm cơ hội thực tập ngay</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% if external_requests %}
+<div class="mt-5 mb-3 d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="text-primary fw-bold"><i class="bi bi-briefcase"></i> Yêu cầu Thực tập Ngoài hệ thống</h4>
+        <p class="text-muted mb-0">Các công ty/tổ chức bạn tự liên hệ xin thực tập</p>
+    </div>
+    <a href="{% url 'recruitment:student_external_request_create' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Khai báo thêm</a>
+</div>
+
+<div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Doanh nghiệp</th>
+                        <th>Vị trí</th>
+                        <th>Ngày nộp</th>
+                        <th>Thời gian dự kiến</th>
+                        <th>Trạng thái & Quyết định</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in external_requests %}
+                    <tr>
+                        <td class="align-middle fw-bold ps-4 text-primary">{{ req.company_name }}</td>
+                        <td class="align-middle fw-bold">{{ req.position }}</td>
+                        <td class="align-middle text-muted">{{ req.created_at|date:"d/m/Y" }}</td>
+                        <td class="align-middle">
+                            <span class="badge bg-light text-dark shadow-sm border"><i class="bi bi-calendar3"></i> {{ req.start_date|date:"d/m/y" }} - {{ req.end_date|date:"d/m/y"|default:"(Chưa rõ)" }}</span>
+                        </td>
+                        <td class="align-middle">
+                            {% if req.status == 'pending' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Đang chờ BCN Khoa duyệt</span>
+                            {% elif req.status == 'approved' %}
+                                <div class="mb-1"><span class="badge bg-success"><i class="bi bi-check-circle"></i> BCN Khoa đã Phê duyệt</span></div>
+                                <span class="badge bg-primary text-white"><i class="bi bi-star-fill text-warning"></i> Trở thành Điểm thực tập chính thức</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Bị từ chối</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

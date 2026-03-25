@@ -37,8 +37,8 @@ cd internship-management-attt
 ### 2. Set up Python environment
 
 ```sh
-python -m venv venv
-venv\Scripts\activate      # Windows
+python -m venv .venv
+source .venv\Scripts\activate      # Windows
 # or
 source .venv/bin/activate   # Mac/Linux
 ```
@@ -47,6 +47,28 @@ source .venv/bin/activate   # Mac/Linux
 ```sh
 pip install -r requirements.txt
 ```
+
+### 4. Khởi tạo Database và Tài khoản Admin
+
+Vì thư mục code không đi kèm database, bạn cần chạy lệnh sau để tạo các bảng trong cơ sở dữ liệu:
+
+```sh
+python manage.py migrate
+```
+
+Sau đó, tạo tài khoản quản trị (Superuser) để đăng nhập vào hệ thống:
+
+```sh
+python manage.py createsuperuser
+```
+
+### 5. Chạy Server
+
+```sh
+python manage.py runserver
+```
+
+Truy cập vào [http://localhost:8000](http://localhost:8000) để sử dụng hệ thống.
 
 ## Chức năng dự kiến
 - Đăng nhập và phân quyền

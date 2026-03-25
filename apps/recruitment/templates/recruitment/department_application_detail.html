@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết hồ sơ - {{ application.student.user.username }}{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <a href="{% url 'recruitment:department_application_list' %}" class="text-decoration-none">
+        &larr; Quay lại danh sách
+    </a>
+</div>
+
+<div class="row">
+    <!-- Cột thông tin ứng viên -->
+    <div class="col-md-7">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white pb-0 border-bottom-0 pt-4 px-4">
+                <h4 class="mb-1 text-primary">Thông tin ứng viên</h4>
+                <hr>
+            </div>
+            <div class="card-body px-4">
+                <table class="table table-borderless table-sm">
+                    <tr>
+                        <td style="width: 150px;" class="fw-bold">Họ và tên:</td>
+                        <td>{{ application.student.user.get_full_name|default:application.student.user.username }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Mã số sinh viên:</td>
+                        <td>{{ application.student.student_id }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Lớp:</td>
+                        <td>{{ application.student.class_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Chuyên ngành:</td>
+                        <td>{{ application.student.major }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Điện thoại:</td>
+                        <td>{{ application.student.phone }}</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Email:</td>
+                        <td>{{ application.student.user.email }}</td>
+                    </tr>
+                </table>
+
+                <h5 class="fw-bold mt-4">Hồ sơ đính kèm (CV)</h5>
+                {% if application.cv %}
+                    <a href="{{ application.cv.file.url }}" target="_blank" class="btn btn-outline-info">
+                        Xem tệp CV ({{ application.cv.title }})
+                    </a>
+                {% else %}
+                    <div class="alert alert-warning">Sinh viên không nộp hoặc đã xoá CV gốc.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Cột phê duyệt và trạng thái -->
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h5 class="fw-bold">Vị trí ứng tuyển</h5>
+                <p class="text-primary fw-bold mb-1">{{ application.post.title }}</p>
+                <div class="text-muted small mb-3">Nộp lúc: {{ application.applied_at|date:"d/m/Y H:i" }}</div>
+                
+                <h5 class="fw-bold mt-4">Trạng thái hiện tại</h5>
+                <div class="mb-4">
+                    {% if has_assignment %}
+                        <span class="badge bg-primary px-3 py-2 fs-6"><i class="bi bi-lock-fill"></i> Sinh viên đã chốt Thực tập</span>
+                    {% elif application.status == 'pending' %}
+                        <span class="badge bg-warning text-dark px-3 py-2 fs-6">Chờ duyệt</span>
+                    {% elif application.status == 'accepted' %}
+                        <span class="badge bg-success px-3 py-2 fs-6">Đã chấp nhận</span>
+                    {% elif application.status == 'rejected' %}
+                        <span class="badge bg-danger px-3 py-2 fs-6"><i class="bi bi-lock-fill"></i> Đã từ chối (Khóa)</span>
+                    {% endif %}
+                </div>
+
+                <hr>
+                <h5 class="fw-bold mb-3">Quyết định phê duyệt</h5>
+                <div class="d-flex gap-2">
+                    {% if has_assignment %}
+                        <div class="alert alert-info w-100 mb-0"><i class="bi bi-shield-lock-fill"></i> Quyết định đã bị khóa vì sinh viên đã xác nhận điểm thực tập này.</div>
+                    {% elif application.status == 'rejected' %}
+                        <div class="alert alert-danger w-100 mb-0"><i class="bi bi-x-circle-fill"></i> Hồ sơ này đã bị từ chối. Không thể hoàn tác.</div>
+                    {% else %}
+                        <form method="post" action="{% url 'recruitment:department_application_status' application.pk 'accepted' %}" class="w-50">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100 fw-bold" {% if application.status == 'accepted' %}disabled{% endif %}>
+                                Chấp nhận
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'recruitment:department_application_status' application.pk 'rejected' %}" class="w-50">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100 fw-bold" {% if application.status == 'rejected' %}disabled{% endif %}>
+                                Từ chối
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

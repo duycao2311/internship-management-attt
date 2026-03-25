@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Danh sách Báo cáo Tuần{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+    <div>
+        <h2>Danh sách Báo cáo Hàng tuần</h2>
+        <a href="{% url 'reports:student_dashboard' %}" class="text-decoration-none text-muted">&larr; Quay lại trang tóm tắt</a>
+    </div>
+    {% if assignment.is_active %}
+    <a href="{% url 'reports:weekly_report_create' %}" class="btn btn-primary fw-bold">
+        <i class="bi bi-plus-circle me-1"></i> Báo cáo tuần mới
+    </a>
+    {% endif %}
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="accordion accordion-flush" id="studentWeeklyAccordion">
+            {% for report in reports %}
+            <div class="accordion-item border-bottom">
+                <h2 class="accordion-header" id="heading{{ report.id }}">
+                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ report.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ report.id }}">
+                        <div class="d-flex justify-content-between w-100 me-3 align-items-center">
+                            <div>
+                                <strong class="fs-5 text-primary pe-2">Tuần {{ report.week_number }}</strong>
+                                <span class="text-muted d-none d-md-inline">|</span>
+                                <span class="fw-bold ms-md-2">{{ report.title }}</span>
+                            </div>
+                            <div>
+                                {% if report.feedback %}
+                                    <span class="badge bg-success shadow-sm rounded-pill py-2 px-3"><i class="bi bi-check-all"></i> Đã có Nhận xét</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark shadow-sm rounded-pill py-2 px-3"><i class="bi bi-hourglass-split"></i> Đang chờ chấm</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+                <div id="collapse{{ report.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#studentWeeklyAccordion">
+                    <div class="accordion-body bg-light border-top p-4">
+                        <div class="row">
+                            <!-- Nhật ký Sinh viên -->
+                            <div class="col-md-7 mb-4 mb-md-0">
+                                <h6 class="fw-bold text-muted text-uppercase mb-3">
+                                    <i class="bi bi-journal-text"></i> Nhật ký Thực tập
+                                    <span class="text-lowercase fw-normal">(Nộp ngày {{ report.submitted_at|date:"d/m/Y" }})</span>
+                                </h6>
+                                <div class="p-4 bg-white border border-light rounded shadow-sm mb-3" style="white-space: pre-wrap;">{{ report.content }}</div>
+                                {% if report.attachment %}
+                                    <a href="{{ report.attachment.url }}" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-paperclip"></i> Tải file đính kèm</a>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Nhận xét của Giảng viên -->
+                            <div class="col-md-5 border-start-md">
+                                <h6 class="fw-bold text-success text-uppercase mb-3"><i class="bi bi-pencil-square"></i> Phản hồi của Giảng viên</h6>
+                                {% if report.feedback %}
+                                    <div class="alert alert-success border-0 shadow-sm position-relative mb-0 h-100">
+                                        <i class="bi bi-quote position-absolute top-0 start-0 text-success opacity-25 ms-2 mt-2" style="font-size: 3rem; line-height: 1;"></i>
+                                        <div class="position-relative ms-4" style="white-space: pre-wrap; z-index: 1;">{{ report.feedback.feedback_content }}</div>
+                                        <div class="text-end mt-3 text-muted small"><i class="bi bi-clock"></i> {{ report.feedback.created_at|date:"d/m/Y H:i" }}</div>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-secondary border-0 shadow-sm text-muted mb-0 d-flex flex-column align-items-center justify-content-center h-100 p-4">
+                                        <i class="bi bi-cup-hot fs-1 mb-2"></i>
+                                        <div class="text-center">Giảng viên vẫn chưa nhận xét báo cáo này.<br>Vui lòng kiên nhẫn chờ đợi nhé!</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="py-5 text-center text-muted">
+                <i class="bi bi-journal-x fs-1 mb-3 d-block"></i>
+                <h5 class="fw-bold">Chưa có báo cáo nào</h5>
+                <p>Tuyệt vời! Hành trình thực tập đã bắt đầu. Hãy bấm <strong>Báo cáo tuần mới</strong> để lưu giữ nhật ký công việc của bạn nhé!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

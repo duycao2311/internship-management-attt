@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Yêu cầu Thực tập Ngoài{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2><i class="bi bi-briefcase text-primary"></i> Quản lý Yêu cầu Thực tập Ngoài</h2>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Về Dashboard</a>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'pending' %}active fw-bold text-primary{% else %}text-muted{% endif %}" href="?status=pending">Đang chờ duyệt</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'approved' %}active fw-bold text-success{% else %}text-muted{% endif %}" href="?status=approved">Đã phê duyệt</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'rejected' %}active fw-bold text-danger{% else %}text-muted{% endif %}" href="?status=rejected">Đã từ chối</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if current_status == 'all' %}active fw-bold text-dark{% else %}text-muted{% endif %}" href="?status=all">Tất cả</a>
+    </li>
+</ul>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Sinh viên</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Vị trí</th>
+                        <th>Thời gian kiến tập</th>
+                        <th>Người liên hệ</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-primary">{{ req.student.user.username }}<br><small class="text-muted fw-normal">{{ req.student.user.get_full_name }}</small></td>
+                        <td class="fw-bold">{{ req.company_name }}<br><small class="text-muted fw-normal"><i class="bi bi-geo-alt"></i> {{ req.address }}</small></td>
+                        <td>{{ req.position }}</td>
+                        <td>
+                            <div>{{ req.start_date|date:"d/m/Y" }} - {{ req.end_date|date:"d/m/Y"|default:"(Chưa rõ)" }}</div>
+                            <small class="text-muted">Nộp lúc: {{ req.created_at|date:"d/m/Y H:i" }}</small>
+                        </td>
+                        <td>
+                            {{ req.contact_person }}<br>
+                            <small class="text-muted"><i class="bi bi-envelope"></i> {{ req.contact_email }}</small>
+                            {% if req.contact_phone %}<br><small class="text-muted"><i class="bi bi-telephone"></i> {{ req.contact_phone }}</small>{% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if req.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                            {% elif req.status == 'approved' %}
+                                <span class="badge bg-success">Đã duyệt</span>
+                            {% else %}
+                                <span class="badge bg-danger">Từ chối</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            {% if req.status == 'pending' %}
+                            <div class="d-flex justify-content-end gap-2">
+                                <form method="post" action="{% url 'admin_external_request_approve' req.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve">
+                                    <button class="btn btn-sm btn-success fw-bold p-2" type="submit" onclick="return confirm('Bạn có chắc chắn muốn phê duyệt đợt thực tập này? (Sẽ tạo tự động 1 Nhật ký thực tập mới)')" title="Phê duyệt">
+                                        <i class="bi bi-check-circle"></i> Duyệt
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'admin_external_request_approve' req.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reject">
+                                    <button class="btn btn-sm btn-outline-danger p-2" type="submit" onclick="return confirm('Từ chối Đề xuất này?')" title="Từ chối">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                                <span class="text-muted fst-italic">Đã đóng</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                            Không có hồ sơ nào ở mục này.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

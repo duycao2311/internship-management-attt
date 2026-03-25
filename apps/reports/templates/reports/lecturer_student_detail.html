@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết Báo cáo Sinh viên{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'reports:lecturer_dashboard' %}" class="text-decoration-none">Sinh viên Hướng dẫn</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết tiến độ</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2>Hồ sơ: <span class="text-primary">{{ assignment.application.student.user.get_full_name|default:assignment.application.student.user.username }}</span></h2>
+            <p class="text-muted mb-0">
+                <i class="bi bi-building"></i> <strong>{{ assignment.application.post.department.organization_name }}</strong> &nbsp;|&nbsp; 
+                <i class="bi bi-briefcase"></i> Vị trí: <strong>{{ assignment.application.post.title }}</strong>
+            </p>
+        </div>
+        <div>
+            <a href="mailto:{{ assignment.get_student.user.email }}" class="btn btn-outline-secondary"><i class="bi bi-envelope"></i> Bấm gọi Email</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-12 mb-4">
+        <h4 class="mb-3 text-primary"><i class="bi bi-calendar-range"></i> 1. Nhật ký Báo cáo Thời vụ (Weekly)</h4>
+        <div class="card shadow-sm border-0 border-top border-primary border-4">
+            <div class="card-body p-0">
+                <div class="accordion accordion-flush" id="weeklyAccordion">
+                    {% for report in weekly_reports %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ report.id }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} py-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ report.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ report.id }}">
+                                <div class="d-flex justify-content-between w-100 me-3 align-items-center">
+                                    <strong class="fs-5"><span class="text-muted pe-2">Tuần {{ report.week_number }}</span> | {{ report.title }}</strong>
+                                    <span>
+                                        {% if report.feedback %}
+                                            <span class="badge bg-success shadow-sm rounded-pill py-2 px-3"><i class="bi bi-check-all"></i> Đã đóng dấu Nhận xét</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark shadow-sm rounded-pill py-2 px-3"><i class="bi bi-chat-square-dots"></i> Cần Chấm & Feedback</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ report.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ report.id }}" data-bs-parent="#weeklyAccordion">
+                            <div class="accordion-body bg-light border-top p-4">
+                                <div class="row">
+                                    <!-- Phần nội dung Sinh viên nộp -->
+                                    <div class="col-md-7">
+                                        <h6 class="fw-bold text-muted text-uppercase mb-3">
+                                            <i class="bi bi-journal-text"></i> Sinh viên Báo cáo 
+                                            <span class="text-lowercase fw-normal">(Nộp ngày {{ report.submitted_at|date:"d/m/Y H:i" }})</span>
+                                        </h6>
+                                        <div class="p-3 bg-white border border-light rounded shadow-sm mb-3" style="white-space: pre-wrap;">{{ report.content }}</div>
+                                        {% if report.attachment %}
+                                            <a href="{{ report.attachment.url }}" class="btn btn-sm btn-outline-dark mb-3" target="_blank"><i class="bi bi-download"></i> Xem file đính kèm gốc</a>
+                                        {% endif %}
+                                    </div>
+                                    <!-- Phần Giảng viên phản hồi -->
+                                    <div class="col-md-5 border-start">
+                                        <h6 class="fw-bold text-success text-uppercase mb-3"><i class="bi bi-pencil-square"></i> Góc Phản hồi của Giảng viên</h6>
+                                        {% if report.feedback %}
+                                            <div class="alert alert-success border-0 shadow-sm position-relative">
+                                                <i class="bi bi-quote position-absolute top-0 start-0 text-success opacity-25 ms-2 mt-2" style="font-size: 3rem; line-height: 1;"></i>
+                                                <div class="position-relative ms-4" style="white-space: pre-wrap; z-index: 1;">{{ report.feedback.feedback_content }}</div>
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-warning border-0 shadow-sm text-dark mb-3">
+                                                <i class="bi bi-exclamation-circle text-warning fw-bold"></i> Giảng viên chưa chấm báo cáo này. Nhập đánh giá của bạn bên dưới.
+                                            </div>
+                                        {% endif %}
+                                        
+                                        <div class="card shadow-sm border-0 border-top border-success mt-3 rounded-bottom">
+                                            <div class="card-body bg-white">
+                                                <form action="{% url 'reports:lecturer_feedback_create' 'weekly' report.id %}" method="post">
+                                                    {% csrf_token %}
+                                                    <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-muted">{% if report.feedback %}Điều chỉnh nhận xét:{% else %}Nhập nhận xét mới & Chốt lưu:{% endif %}</label>
+                                                        <textarea name="feedback_content" class="form-control" rows="3" required placeholder="Gõ phản hồi, góp ý cho SV tại đây...">{{ report.feedback.feedback_content|default:"" }}</textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success w-100 fw-bold"><i class="bi bi-send-fill"></i> Gửi & Đóng dấu Nhận xét Tuần {{ report.week_number }}</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-5 text-center text-muted">
+                        <i class="bi bi-wind fs-1 mb-2 d-block"></i>
+                        Trống trơn. Sinh viên này vẫn chưa nộp bất kì một báo cáo tuần nào!
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 mb-5">
+    <div class="col-lg-12">
+        <h4 class="mb-3 text-danger"><i class="bi bi-flag-fill"></i> 2. Báo cáo Tổng kết Chung cuộc (Final Report)</h4>
+        {% if assignment.final_report %}
+            <div class="card shadow-sm border-0 border-top border-danger border-4">
+                <div class="card-body bg-light p-4">
+                     <div class="row">
+                         <div class="col-md-7">
+                             <h5 class="fw-bold mb-1">{{ assignment.final_report.title }}</h5>
+                             <p class="text-muted small mb-3"><i class="bi bi-clock-history"></i> Bấm nộp lúc: {{ assignment.final_report.submitted_at|date:"d/m/Y H:i:s" }}</p>
+                             
+                             <div class="p-4 bg-white border border-light shadow-sm rounded mb-4" style="white-space: pre-wrap; min-height: 100px;">{{ assignment.final_report.content }}</div>
+                             
+                             {% if assignment.final_report.attachment %}
+                                 <a href="{{ assignment.final_report.attachment.url }}" class="btn btn-danger" target="_blank"><i class="bi bi-file-pdf-fill"></i> Tải bản mềm Khóa luận (PDF/Word)</a>
+                             {% endif %}
+                         </div>
+                         <div class="col-md-5 border-start">
+                             <h6 class="fw-bold text-danger text-uppercase mb-3"><i class="bi bi-award-fill"></i> Đánh giá Chốt sổ của Giảng viên</h6>
+                             {% if assignment.final_report.feedback %}
+                                 <div class="alert alert-danger text-dark border-0 shadow-sm position-relative">
+                                     <i class="bi bi-quote position-absolute top-0 start-0 text-danger opacity-25 ms-2 mt-2" style="font-size: 3rem; line-height: 1;"></i>
+                                     <div class="position-relative ms-4" style="white-space: pre-wrap;">{{ assignment.final_report.feedback.feedback_content }}</div>
+                                 </div>
+                             {% endif %}
+                             
+                             <div class="card shadow-sm border-0 mt-3">
+                                 <div class="card-body">
+                                     <form action="{% url 'reports:lecturer_feedback_create' 'final' assignment.final_report.id %}" method="post">
+                                          {% csrf_token %}
+                                          <div class="mb-3">
+                                              <label class="form-label small fw-bold text-muted">{% if assignment.final_report.feedback %}Chỉnh sửa đánh giá hiện tại:{% else %}Nhập lời bàn & Chốt kết quả Toàn Khóa:{% endif %}</label>
+                                              <textarea name="feedback_content" class="form-control border-danger border-opacity-50" rows="5" required placeholder="Đánh giá tổng thể hiệu suất, ưu khuyết điểm...">{{ assignment.final_report.feedback.feedback_content|default:"" }}</textarea>
+                                          </div>
+                                          <button type="submit" class="btn btn-danger w-100 fw-bold py-2"><i class="bi bi-check-circle-fill"></i> {% if assignment.final_report.feedback %}Cập nhật đánh giá cuối kỳ{% else %}Chốt đánh giá cuối kỳ{% endif %}</button>
+                                     </form>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary border-0 text-center py-4 text-muted border-top border-secondary border-4">
+                <i class="bi bi-hourglass-top fs-2 mb-2 d-block"></i>
+                Sinh viên thuộc biên chế của bạn chưa nộp Báo cáo Tổng kết cuối kỳ. Bạn chưa thể tiến hành đánh giá mục này.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý Kỳ Thực tập{% endblock %}
+{% block content %}
+<div class="mt-4 mb-4 pb-2 border-bottom d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold text-dark"><i class="bi bi-calendar-range-fill text-primary"></i> Quản lý Kỳ Thực tập</h2>
+        <p class="text-muted mb-0">Cấu hình thời gian bắt đầu và kết thúc của các lứa sinh viên đi thực tế</p>
+    </div>
+    <div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-left"></i> Về lại Dashboard</a>
+        <a href="{% url 'admin_period_create' %}" class="btn btn-primary fw-bold shadow-sm"><i class="bi bi-plus-lg"></i> Thêm Kỳ Thực tập Mới</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 border-top border-info border-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Tên Kỳ Thực tập</th>
+                                <th>Khung Thời gian</th>
+                                <th class="text-center">Trạng thái (Active)</th>
+                                <th class="text-end pe-4">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for period in periods %}
+                            <tr>
+                                <td class="ps-4 fw-bold {% if period.is_active %}text-primary fs-5{% else %}text-muted{% endif %}">{{ period.name }}</td>
+                                <td>
+                                    <div class="small">
+                                        <div class="mb-1"><span class="badge bg-light text-dark text-uppercase border" style="width:60px">Bắt đầu</span> <span class="fw-bold ms-1 text-dark">{{ period.start_date|date:"d/m/Y" }}</span></div>
+                                        <div><span class="badge bg-light text-dark text-uppercase border" style="width:60px">Kết thúc</span> <span class="fw-bold text-danger ms-1">{{ period.end_date|date:"d/m/Y" }}</span></div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    {% if period.is_active %}
+                                    <span class="badge bg-success bg-opacity-10 text-success p-2 px-3 rounded-pill border border-success"><i class="bi bi-check-circle-fill me-1"></i> Đang Mở (Hiện tại)</span>
+                                    {% else %}
+                                    <form action="{% url 'admin_period_toggle_active' period.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success fw-bold rounded-pill shadow-sm"><i class="bi bi-toggle-off pe-1"></i> Bật Kích hoạt Kỳ này</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'admin_period_edit' period.id %}" class="btn btn-sm btn-light border shadow-sm me-1" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i> Sửa
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="bi bi-calendar-x text-muted opacity-50 mb-3 d-block" style="font-size: 3rem;"></i>
+                                    Nhà trường hiện chưa thiết lập Kỳ thực tập nào.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="alert alert-info mt-4 border-0 shadow-sm d-flex align-items-center">
+            <i class="bi bi-info-circle-fill fs-3 me-3 text-info"></i>
+            <div>
+                <strong>Lưu ý Kiến trúc Hệ thống:</strong> Khóa thực tập (Internship Period) mang cờ <code>Đang Mở</code> sẽ tự động gán Ngày bắt đầu và Ngày kết thúc cho Phiếu phân công (Assignments) của sinh viên khi họ bấm chốt xác nhận nơi thực tập. Chỉ duy nhất 1 kỳ được mở tại một thời điểm bất kỳ.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

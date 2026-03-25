@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <a href="{% url 'recruitment:student_post_list' %}" class="text-decoration-none">
+        &larr; Quay lại danh sách
+    </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white pb-0 border-bottom-0 pt-4 px-4">
+        <h2>{{ post.title }}</h2>
+        <h5 class="text-muted">{{ post.department.organization_name }}</h5>
+        <hr>
+    </div>
+    <div class="card-body px-4">
+        <div class="row">
+            <div class="col-md-8">
+                <h5 class="fw-bold text-primary">Mô tả công việc</h5>
+                <div class="mb-4" style="white-space: pre-wrap;">{{ post.description }}</div>
+                
+                <h5 class="fw-bold text-primary">Yêu cầu</h5>
+                <div class="mb-4" style="white-space: pre-wrap;">{{ post.requirements }}</div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body">
+                        <h6 class="fw-bold">Thông tin thêm</h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><strong>Ngày đăng:</strong> <br> {{ post.created_at|date:"d/m/Y" }}</li>
+                        <div class="mb-2"><strong>Trạng thái:</strong> <br> <span class="badge bg-success">Đang mở</span></div>
+                        {% if post.deadline %}
+                        <div class="mb-2"><strong>Hạn ứng tuyển:</strong> <br> <span class="text-danger fw-bold">{{ post.deadline|date:"d/m/Y" }}</span></div>
+                        {% endif %}
+                        <div><strong>Liên hệ:</strong> <br> {{ post.department.email }}</div>
+                        
+                        <hr>
+                        {% if has_applied %}
+                            <div class="alert alert-success mt-3 text-center mb-0">
+                                <i class="bi bi-check-circle-fill"></i> Bạn đã ứng tuyển vị trí này
+                            </div>
+                            <div class="mt-2 text-center">
+                                <a href="{% url 'recruitment:student_application_list' %}" class="btn btn-outline-success w-100">Xem hồ sơ đã nộp</a>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'recruitment:student_apply' post.pk %}" class="btn btn-success w-100 fw-bold">Ứng tuyển ngay</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
