@@ -1,5 +1,5 @@
 from django import forms
-from .models import WeeklyReport, FinalReport, LecturerFeedback, DepartmentLecturerAssignment, InternshipPeriod, InternshipAssignment
+from .models import WeeklyReport, FinalReport, LecturerFeedback, DepartmentLecturerAssignment, InternshipPeriod, InternshipAssignment, ExternalInternshipLecturerConfig
 
 class WeeklyReportForm(forms.ModelForm):
     class Meta:
@@ -91,4 +91,15 @@ class InternshipAssignmentForm(forms.ModelForm):
             'start_date': 'Ngày Bắt đầu',
             'end_date': 'Ngày Kết thúc',
             'is_active': 'Trạng thái Hoạt động (Cho phép SV nộp báo cáo)',
+        }
+
+class ExternalInternshipLecturerConfigForm(forms.ModelForm):
+    class Meta:
+        model = ExternalInternshipLecturerConfig
+        fields = ['lecturer']
+        widgets = {
+            'lecturer': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'lecturer': 'Giảng viên phụ trách Nhóm Thực tập Ngoài',
         }

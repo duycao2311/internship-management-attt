@@ -82,7 +82,9 @@ class WeeklyReport(models.Model):
         unique_together = ['assignment', 'week_number']
 
     def __str__(self):
-        return f"Week {self.week_number} - {self.assignment.application.student.user.username}"
+        student = self.assignment.get_student
+        student_name = student.user.username if student else "Unknown"
+        return f"Week {self.week_number} - {student_name}"
 
 
 class FinalReport(models.Model):
@@ -97,7 +99,9 @@ class FinalReport(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Final Report: {self.assignment.application.student.user.username}"
+        student = self.assignment.get_student
+        student_name = student.user.username if student else "Unknown"
+        return f"Final Report: {student_name}"
 
 
 class DepartmentLecturerAssignment(models.Model):
@@ -114,6 +118,36 @@ class DepartmentLecturerAssignment(models.Model):
         comp_name = self.department.organization_name
         return f"{comp_name} => GV: {lect_name}"
 
+
+
+class ExternalInternshipLecturerConfig(models.Model):
+    """
+    Cấu hình Giảng viên phụ trách chung cho Nhóm Thực tập Ngoài.
+    Chỉ luưu 1 bản ghi duy nhất. Sử dụng get_solo() để truy cập.
+    """
+    lecturer = models.ForeignKey(
+        LecturerProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='external_internship_config',
+        verbose_name="Giảng viên phụ trách Thực tập Ngoài",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Cấu hình GV Thực tập Ngoài"
+
+    @classmethod
+    def get_solo(cls):
+        """Lấy bản ghi cấu hình duy nhất, tạo mới nếu chưa có."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        if self.lecturer:
+            return f"GV Thực tập Ngoài: {self.lecturer.user.get_full_name() or self.lecturer.user.username}"
+        return "GV Thực tập Ngoài: Chưa cấu hình"
 
 
 class LecturerFeedback(models.Model):

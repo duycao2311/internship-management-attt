@@ -17,17 +17,17 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item px-0">
                         <strong class="text-muted d-block small">Doanh nghiệp thực tập:</strong>
-                        <span class="fs-6 fw-bold">{{ assignment.application.post.department.organization_name }}</span>
+                        <span class="fs-6 fw-bold">{{ assignment.get_company_name }}</span>
                     </li>
                     <li class="list-group-item px-0">
                         <strong class="text-muted d-block small">Vị trí:</strong>
-                        <span>{{ assignment.application.post.title }}</span>
+                        <span>{{ assignment.get_position_name }}</span>
                     </li>
                     <li class="list-group-item px-0">
                         <strong class="text-muted d-block small">Giảng viên hướng dẫn:</strong>
                         {% if assignment.lecturer %}
                             <span class="text-primary fw-bold">{{ assignment.lecturer.user.get_full_name|default:assignment.lecturer.user.username }}</span> <br>
-                            <small>Khoa: {{ assignment.lecturer.department }} - {{ assignment.lecturer.user.email }}</small>
+                            <small>Khoa: {{ assignment.lecturer.faculty }} - {{ assignment.lecturer.user.email }}</small>
                         {% else %}
                             <span class="text-warning fw-bold"><i class="bi bi-hourglass-split"></i> Đang chờ phân công Giảng viên</span>
                         {% endif %}

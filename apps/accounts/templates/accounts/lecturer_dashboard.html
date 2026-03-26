@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% block title %}Bảng điều khiển - Giảng viên{% endblock %}
 {% block content %}
 <div class="container mt-5">
     <div class="row align-items-center mb-5">
         <div class="col-md-8">
             <h1 class="display-5 fw-bold text-primary">Khu vực Giảng viên</h1>
-            <p class="fs-5 text-muted">Xin chào thầy/cô <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>. Bảng điều khiển (Dashboard) này cung cấp các lối tắt nhanh đến công cụ quản lý sinh viên thực tập.</p>
+            <p class="fs-5 text-muted">Xin chào thầy/cô <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>. Bảng điều khiển này cung cấp các lối tắt nhanh đến công cụ quản lý sinh viên thực tập.</p>
         </div>
         <div class="col-md-4 text-end d-none d-md-block">
             <i class="bi bi-mortarboard-fill text-primary opacity-25" style="font-size: 6rem;"></i>
@@ -32,22 +33,24 @@
             </div>
         </div>
 
-        <!-- Các tính năng Phụ (Optional Placeholder) -->
+        <!-- Hướng dẫn sử dụng -->
         <div class="col-md-6">
-            <div class="card shadow-sm h-100 border-0 border-start border-secondary border-4 bg-light">
-                <div class="card-body p-4 text-muted">
+            <div class="card shadow-sm h-100 border-0 border-start border-info border-4">
+                <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
-                        <div class="bg-secondary bg-opacity-10 p-3 rounded-circle text-secondary me-3">
-                            <i class="bi bi-graph-up-arrow fs-3"></i>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info me-3">
+                            <i class="bi bi-info-circle-fill fs-3"></i>
                         </div>
-                        <h4 class="card-title mb-0 fw-bold">Thống kê & Phân tích</h4>
+                        <h4 class="card-title mb-0 fw-bold">Hướng dẫn sử dụng</h4>
                     </div>
-                    <p class="card-text">
-                        Khu vực tương lai dành cho việc tự động gán điểm số, trích xuất file Excel báo cáo cuối kỳ nộp cho Khoa, hoặc gửi tín hiệu auto-email nhắc bài sinh viên.
-                    </p>
-                    <button class="btn btn-outline-secondary mt-3 px-4 fw-bold" disabled>
-                        Đang phát triển <i class="bi bi-lock-fill ms-2"></i>
-                    </button>
+                    <ul class="text-muted small mb-3 ps-3">
+                        <li class="mb-1">Nhấn <strong>"Vào trang Đánh giá"</strong> để xem danh sách sinh viên đang phụ trách.</li>
+                        <li class="mb-1">Chọn từng sinh viên để xem báo cáo tuần và nhận xét.</li>
+                        <li class="mb-1">Hoàn thành <strong>Đánh giá cuối kỳ</strong> sau khi sinh viên nộp báo cáo tổng kết.</li>
+                    </ul>
+                    <a href="{% url 'reports:lecturer_dashboard' %}" class="btn btn-outline-info px-4 fw-bold">
+                        Xem danh sách sinh viên <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
                 </div>
             </div>
         </div>

@@ -25,6 +25,7 @@ urlpatterns = [
     path('dashboard/admin/mappings/<int:mapping_id>/delete/', views.admin_mapping_delete, name='admin_mapping_delete'),
     path('dashboard/admin/external-requests/', views.admin_external_request_manager, name='admin_external_request_manager'),
     path('dashboard/admin/external-requests/<int:req_id>/approve/', views.admin_external_request_approve, name='admin_external_request_approve'),
+    path('dashboard/admin/external-lecturer-config/', views.admin_external_lecturer_config, name='admin_external_lecturer_config'),
     path('forbidden/', views.forbidden_view, name='forbidden'),
 
     # Profile routes

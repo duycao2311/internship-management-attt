@@ -14,7 +14,10 @@
                 <span class="badge bg-danger rounded-pill float-end mt-1 shadow-sm">{{ total_external_requests }} mới</span>
                 {% endif %}
             </a>
-            <a href="{% url 'admin_assignment_manager' %}" class="btn btn-warning fw-bold shadow-sm mb-2 w-100 text-start text-dark"><i class="bi bi-person-lines-fill pe-2"></i> Quản lý Thực tập SV (Assignments)</a>
+            <a href="{% url 'admin_external_lecturer_config' %}" class="btn btn-outline-success fw-bold shadow-sm mb-2 w-100 text-start">
+                <i class="bi bi-person-gear pe-2"></i> GV phụ trách Thực tập Ngoài
+            </a>
+            <a href="{% url 'admin_assignment_manager' %}" class="btn btn-warning fw-bold shadow-sm mb-2 w-100 text-start text-dark"><i class="bi bi-person-lines-fill pe-2"></i> Quản lý Phân công Thực tập</a>
             <a href="{% url 'admin_period_manager' %}" class="btn btn-info fw-bold shadow-sm mb-2 w-100 text-start text-dark"><i class="bi bi-calendar-range-fill pe-2"></i> Quản lý Kỳ Thực tập</a>
             <a href="{% url 'admin_mapping_manager' %}" class="btn btn-primary fw-bold shadow-sm mb-2 w-100 text-start"><i class="bi bi-diagram-3-fill pe-2"></i> Quản lý Phân công Giảng viên</a>
             <a href="/admin/" class="btn btn-dark fw-bold shadow-sm w-100 text-start" target="_blank"><i class="bi bi-gear-fill pe-2"></i> Hệ thống Quản trị (Admin-Core)</a>

@@ -6,25 +6,50 @@
         <div class="card shadow-sm border-0 border-top border-warning border-4 text-center py-5">
             <div class="card-body px-5">
                 <i class="bi bi-person-workspace text-warning display-1 mb-3"></i>
-                <h3 class="fw-bold">Chưa có Giảng viên hướng dẫn</h3>
+                <h3 class="fw-bold">Bạn chưa thể sử dụng chức năng Báo cáo</h3>
                 <p class="text-muted mt-3 mb-4 fs-5">
-                    Hệ thống Báo cáo chỉ được kích hoạt khi quy trình thực tập của bạn đã được chốt chính thức.
+                    Hãy hoàn thành việc ứng tuyển hoặc chốt chỗ thực tập trước! Sau đó hệ thống sẽ tự động mở khóa phần Báo cáo cho bạn.
                 </p>
                 
-                <div class="text-start bg-light p-4 rounded mb-5 d-inline-block text-muted mx-auto border" style="max-width: 550px">
-                    <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-list-check"></i> Các bước để bắt đầu báo cáo tuần:</h6>
-                    <ul class="mb-0 ps-3">
-                        <li class="mb-2"><strong>Bước 1:</strong> Nộp đơn ứng tuyển một Vị trí Thực tập.</li>
-                        <li class="mb-2"><strong>Bước 2:</strong> Chờ Doanh nghiệp ấn nút <em class="text-success">Chấp nhận (Accept)</em>.</li>
-                        <li class="mb-2"><strong>Bước 3:</strong> Bạn bấm <em class="text-primary">Xác nhận</em> kết quả thực tập chính thức.</li>
-                        <li><strong>Bước 4:</strong> Nhà trường sẽ tiến hành phân công Giảng viên cho bạn.</li>
-                    </ul>
+                <div class="row g-3 mb-5 text-start mx-auto" style="max-width: 620px">
+                    <div class="col-md-6">
+                        <div class="card border-primary border-2 h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-building"></i> Thực tập tại Doanh nghiệp Đối tác</h6>
+                                <ol class="mb-0 ps-3 text-muted small">
+                                    <li class="mb-1">Ứng tuyển một Vị trí Thực tập.</li>
+                                    <li class="mb-1">Chờ Doanh nghiệp <em class="text-success">Chấp nhận</em>.</li>
+                                    <li class="mb-1">Bấm <em class="text-primary">Xác nhận chính thức</em>.</li>
+                                    <li>Nhà trường phân công Giảng viên.</li>
+                                </ol>
+                                <a href="{% url 'recruitment:student_post_list' %}" class="btn btn-sm btn-outline-primary mt-3 w-100">
+                                    <i class="bi bi-search"></i> Xem tin tuyển dụng
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success border-2 h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-success mb-2"><i class="bi bi-briefcase"></i> Tự liên hệ Doanh nghiệp Ngoài</h6>
+                                <p class="text-muted small mb-2">
+                                    Nếu bạn đã tự tìm được nơi thực tập ngoài danh sách đối tác của Trường, hãy khai báo thông tin để Nhà trường xét duyệt và mở khóa Báo cáo.
+                                </p>
+                                <a href="{% url 'recruitment:student_external_request_create' %}" class="btn btn-sm btn-success mt-2 w-100">
+                                    <i class="bi bi-plus-circle"></i> Đăng ký Thực tập Ngoài
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="{% url 'recruitment:student_post_list' %}" class="btn btn-outline-primary px-4 py-2"><i class="bi bi-search"></i> Xem tin tuyển dụng</a>
-                    <a href="{% url 'recruitment:student_application_list' %}" class="btn btn-outline-secondary px-4 py-2"><i class="bi bi-clock-history"></i> Lịch sử ứng tuyển</a>
-                    <a href="{% url 'student_dashboard' %}" class="btn btn-primary px-4 py-2"><i class="bi bi-house-door"></i> Về trang chủ</a>
+                    <a href="{% url 'recruitment:student_application_list' %}" class="btn btn-outline-secondary px-4 py-2">
+                        <i class="bi bi-clock-history"></i> Lịch sử ứng tuyển & Yêu cầu
+                    </a>
+                    <a href="{% url 'student_dashboard' %}" class="btn btn-primary px-4 py-2">
+                        <i class="bi bi-house-door"></i> Về trang chủ
+                    </a>
                 </div>
             </div>
         </div>

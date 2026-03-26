@@ -3,14 +3,14 @@
     <a class="navbar-brand d-flex align-items-center" href="/">
       <img src="/static/images/logo-ptit.jpg" alt="PTIT Logo" height="40" class="me-2">
       <img src="/static/images/logo-attt.jpg" alt="ATTT Logo" height="40">
-      <span class="ms-2 fw-bold">Internship Management</span>
+      <span class="ms-2 fw-bold">Quản lý thực tập cuối khóa - Khoa ATTT - PTIT</span>
     </a>
     <div class="d-flex ms-auto">
       {% if request.user.is_authenticated %}
         <span class="navbar-text me-3">{{ request.user.username }} ({{ request.user.get_role_display }})</span>
-        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Logout</a>
+        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Đăng xuất</a>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Login</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Đăng nhập</a>
       {% endif %}
     </div>
   </div>

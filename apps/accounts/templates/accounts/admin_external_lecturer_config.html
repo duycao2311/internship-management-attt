@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Cấu hình Giảng viên Nhóm Thực tập Ngoài{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-start">
+        <div>
+            <h2 class="fw-bold"><i class="bi bi-person-gear text-success"></i> Giảng viên phụ trách Thực tập Ngoài</h2>
+            <p class="text-muted mb-0">
+                Cấu hình <strong>một Giảng viên</strong> chịu trách nhiệm hướng dẫn tất cả các sinh viên trong <strong>Nhóm Thực tập Ngoài hệ thống</strong>.<br>
+                Khi Admin duyệt một yêu cầu thực tập ngoài, hệ thống sẽ tự động gán giảng viên này vào Nhật ký thực tập mới.
+            </p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary ms-3 flex-shrink-0">
+            <i class="bi bi-arrow-left"></i> Về Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {# Cột trái: Form cấu hình #}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0 border-top border-success border-4">
+            <div class="card-header bg-white border-bottom pt-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-pencil-square text-success"></i> Đặt cấu hình</h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.lecturer.id_for_label }}" class="form-label fw-bold">
+                            {{ form.lecturer.label }}
+                        </label>
+                        {{ form.lecturer }}
+                        <div class="form-text text-muted">
+                            Chọn "--------" để để trống. Khi chưa có cấu hình, sinh viên vẫn được phê duyệt nhưng sẽ thấy <em>"Đang chờ phân công giảng viên"</em>.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success fw-bold w-100">
+                        <i class="bi bi-save2"></i> Lưu cấu hình
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {# Cột phải: Xem trạng thái hiện tại #}
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom pt-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-info-circle text-primary"></i> Trạng thái hiện tại</h5>
+            </div>
+            <div class="card-body">
+                {% if config.lecturer %}
+                <div class="d-flex align-items-center p-3 bg-success bg-opacity-10 rounded-3 mb-3">
+                    <div class="bg-success text-white rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
+                        <i class="bi bi-person-check-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5">{{ config.lecturer.user.get_full_name|default:config.lecturer.user.username }}</div>
+                        <div class="text-muted small">{{ config.lecturer.user.email }}</div>
+                        <span class="badge bg-success mt-1">Đang phụ trách Nhóm Thực tập Ngoài</span>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-arrow-right-circle text-success"></i>
+                    Khi Admin phê duyệt một yêu cầu thực tập ngoài mới, giảng viên này sẽ <strong>tự động</strong> được gán vào nhật ký thực tập của sinh viên đó.
+                </p>
+                {% else %}
+                <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded-3 mb-3">
+                    <div class="bg-warning text-dark rounded-circle p-3 me-3 d-flex align-items-center justify-content-center" style="width:50px;height:50px;">
+                        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Chưa cấu hình</div>
+                        <div class="text-muted small">Nhóm Thực tập Ngoài hiện chưa có Giảng viên phụ trách</div>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle text-warning"></i>
+                    Khi phê duyệt yêu cầu, hệ thống vẫn tạo Nhật ký thực tập nhưng sinh viên sẽ thấy thông báo <strong>"Đang chờ phân công giảng viên"</strong> ở trang Báo cáo.
+                </p>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white border-0">
+                <a href="{% url 'admin_external_request_manager' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-briefcase"></i> Xem danh sách Yêu cầu Thực tập Ngoài
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -38,7 +38,7 @@ class DepartmentProfile(models.Model):
 	description = models.TextField(blank=True)
 
 	def __str__(self):
-		return f"DepartmentProfile: {self.organization_name}"
+		return self.organization_name or self.user.username
 
 class LecturerProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='lecturer_profile')
@@ -48,4 +48,4 @@ class LecturerProfile(models.Model):
 	specialization = models.CharField(max_length=100)
 
 	def __str__(self):
-		return f"LecturerProfile: {self.full_name}"
+		return self.user.get_full_name() or self.full_name or self.user.username

@@ -4,8 +4,8 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from apps.accounts.models import LecturerProfile, DepartmentProfile, StudentProfile
 from apps.recruitment.models import InternshipPost, Application, ExternalInternshipRequest
-from apps.reports.models import InternshipAssignment, WeeklyReport, DepartmentLecturerAssignment, InternshipPeriod
-from apps.reports.forms import DepartmentLecturerAssignmentForm, InternshipPeriodForm, InternshipAssignmentForm
+from apps.reports.models import InternshipAssignment, WeeklyReport, DepartmentLecturerAssignment, InternshipPeriod, ExternalInternshipLecturerConfig
+from apps.reports.forms import DepartmentLecturerAssignmentForm, InternshipPeriodForm, InternshipAssignmentForm, ExternalInternshipLecturerConfigForm
 from django.shortcuts import get_object_or_404, redirect
 
 def login_view(request):
@@ -246,7 +246,9 @@ def admin_assignment_toggle_active(request, assignment_id):
 		assignment.is_active = not assignment.is_active
 		assignment.save()
 		status_text = "kích hoạt mở lại" if assignment.is_active else "tạm ngưng"
-		messages.success(request, f'Đã {status_text} đợt thực tập của sinh viên {assignment.application.student.user.get_full_name()}.')
+		student = assignment.get_student
+		student_name = student.user.get_full_name() or student.user.username if student else "Unknown"
+		messages.success(request, f'Đã {status_text} đợt thực tập của sinh viên {student_name}.')
 	return redirect('admin_assignment_manager')
 
 @role_required(User.ADMIN)
@@ -285,9 +287,14 @@ def admin_external_request_approve(request, req_id):
 				period_start = None
 				period_end = None
 				
+			# Tự động lấy giảng viên phụ trách nhóm thực tập ngoài nếu đã cấu hình
+			external_config = ExternalInternshipLecturerConfig.get_solo()
+			auto_lecturer = external_config.lecturer  # có thể là None nếu chưa cấu hình
+				
 			# Khởi tạo điểm thực tập
 			InternshipAssignment.objects.create(
 				external_request=req,
+				lecturer=auto_lecturer,
 				start_date=period_start,
 				end_date=period_end,
 				is_active=True
@@ -300,6 +307,37 @@ def admin_external_request_approve(request, req_id):
 			messages.info(request, f'Đã từ chối Đề xuất Thực tập ngoài của {req.student.user.username}.')
 			
 	return redirect('admin_external_request_manager')
+
+@role_required(User.ADMIN)
+def admin_external_lecturer_config(request):
+	"""Cấu hình Giảng viên phụ trách Nhóm Thực tập Ngoài."""
+	config = ExternalInternshipLecturerConfig.get_solo()
+	
+	if request.method == 'POST':
+		form = ExternalInternshipLecturerConfigForm(request.POST, instance=config)
+		if form.is_valid():
+			form.save()
+			
+			# Backfill: gán giảng viên cho các external assignment đang có lecturer = null
+			new_lecturer = form.cleaned_data.get('lecturer')
+			if new_lecturer:
+				backfill_count = InternshipAssignment.objects.filter(
+					external_request__isnull=False,
+					lecturer__isnull=True
+				).update(lecturer=new_lecturer)
+				if backfill_count > 0:
+					messages.info(request, f'Đã tự động phân công Giảng viên cho {backfill_count} sinh viên Thực tập Ngoài đang chưa có GV.')
+			
+			messages.success(request, 'Đã lưu cấu hình Giảng viên phụ trách Nhóm Thực tập Ngoài.')
+			return redirect('admin_external_lecturer_config')
+	else:
+		form = ExternalInternshipLecturerConfigForm(instance=config)
+	
+	context = {
+		'config': config,
+		'form': form,
+	}
+	return render(request, 'accounts/admin_external_lecturer_config.html', context)
 
 def forbidden_view(request):
 	return render(request, 'accounts/forbidden.html', status=403)

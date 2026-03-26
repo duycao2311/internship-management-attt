@@ -78,6 +78,11 @@ def final_report_detail(request):
         return render(request, 'reports/final_report_detail.html', {'report': assignment.final_report, 'assignment': assignment})
         
     # Tạo mới bản báo cáo tổng kết
+    # Gate: phải có ít nhất 1 báo cáo tuần trước khi nộp báo cáo tổng kết
+    if assignment.weekly_reports.count() == 0:
+        messages.error(request, 'Bạn cần nộp ít nhất 1 báo cáo tuần trước khi nộp báo cáo tổng kết.')
+        return redirect('reports:weekly_report_list')
+
     if request.method == 'POST':
         form = FinalReportForm(request.POST, request.FILES)
         if form.is_valid():

@@ -67,16 +67,19 @@
         </div>
     </div>
 </div>
-{% if external_requests %}
+
+{# Always show the external internship section, even when there are zero requests #}
 <div class="mt-5 mb-3 d-flex justify-content-between align-items-center">
     <div>
-        <h4 class="text-primary fw-bold"><i class="bi bi-briefcase"></i> Yêu cầu Thực tập Ngoài hệ thống</h4>
-        <p class="text-muted mb-0">Các công ty/tổ chức bạn tự liên hệ xin thực tập</p>
+        <h4 class="text-success fw-bold"><i class="bi bi-briefcase"></i> Thực tập Ngoài hệ thống</h4>
+        <p class="text-muted mb-0">Dành cho bạn đã tự liên hệ doanh nghiệp ngoài danh sách đối tác của Trường</p>
     </div>
-    <a href="{% url 'recruitment:student_external_request_create' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-circle"></i> Khai báo thêm</a>
+    <a href="{% url 'recruitment:student_external_request_create' %}" class="btn btn-success fw-bold">
+        <i class="bi bi-plus-circle me-1"></i> Đăng ký mới
+    </a>
 </div>
 
-<div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
+<div class="card shadow-sm border-0 border-top border-success border-4 mb-4">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
@@ -86,7 +89,7 @@
                         <th>Vị trí</th>
                         <th>Ngày nộp</th>
                         <th>Thời gian dự kiến</th>
-                        <th>Trạng thái & Quyết định</th>
+                        <th>Trạng thái &amp; Quyết định</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -96,7 +99,10 @@
                         <td class="align-middle fw-bold">{{ req.position }}</td>
                         <td class="align-middle text-muted">{{ req.created_at|date:"d/m/Y" }}</td>
                         <td class="align-middle">
-                            <span class="badge bg-light text-dark shadow-sm border"><i class="bi bi-calendar3"></i> {{ req.start_date|date:"d/m/y" }} - {{ req.end_date|date:"d/m/y"|default:"(Chưa rõ)" }}</span>
+                            <span class="badge bg-light text-dark shadow-sm border">
+                                <i class="bi bi-calendar3"></i>
+                                {{ req.start_date|date:"d/m/y" }} &ndash; {{ req.end_date|date:"d/m/y"|default:"(Chưa rõ)" }}
+                            </span>
                         </td>
                         <td class="align-middle">
                             {% if req.status == 'pending' %}
@@ -109,11 +115,17 @@
                             {% endif %}
                         </td>
                     </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox d-block fs-2 mb-2"></i>
+                            Bạn chưa có yêu cầu nào. Bấm <strong>"Đăng ký mới"</strong> bên phải để khai báo.
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-{% endif %}
 {% endblock %}

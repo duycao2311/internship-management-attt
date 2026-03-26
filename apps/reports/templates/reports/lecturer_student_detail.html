@@ -10,11 +10,13 @@
     </nav>
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h2>Hồ sơ: <span class="text-primary">{{ assignment.application.student.user.get_full_name|default:assignment.application.student.user.username }}</span></h2>
+            {% with student=assignment.get_student %}
+            <h2>Hồ sơ: <span class="text-primary">{{ student.user.get_full_name|default:student.user.username }}</span></h2>
             <p class="text-muted mb-0">
-                <i class="bi bi-building"></i> <strong>{{ assignment.application.post.department.organization_name }}</strong> &nbsp;|&nbsp; 
-                <i class="bi bi-briefcase"></i> Vị trí: <strong>{{ assignment.application.post.title }}</strong>
+                <i class="bi bi-building"></i> <strong>{{ assignment.get_company_name }}</strong> &nbsp;|&nbsp;
+                <i class="bi bi-briefcase"></i> Vị trí: <strong>{{ assignment.get_position_name }}</strong>
             </p>
+            {% endwith %}
         </div>
         <div>
             <a href="mailto:{{ assignment.get_student.user.email }}" class="btn btn-outline-secondary"><i class="bi bi-envelope"></i> Bấm gọi Email</a>

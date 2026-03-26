@@ -86,11 +86,17 @@
                     {% for assignment in assignments %}
                     <tr>
                         <td class="ps-3 fw-bold text-primary">
-                            {{ assignment.application.student.user.get_full_name|default:assignment.application.student.user.username }}
-                            <br><small class="text-muted fw-normal">{{ assignment.application.student.user.email }}</small>
+                            {% with student=assignment.get_student %}
+                            {% if student %}
+                            {{ student.user.get_full_name|default:student.user.username }}
+                            <br><small class="text-muted fw-normal">{{ student.user.email }}</small>
+                            {% else %}
+                            <span class="text-muted fst-italic">Không xác định</span>
+                            {% endif %}
+                            {% endwith %}
                         </td>
-                        <td>{{ assignment.application.post.department.organization_name }}</td>
-                        <td>{{ assignment.application.post.title }}</td>
+                        <td>{{ assignment.get_company_name }}</td>
+                        <td>{{ assignment.get_position_name }}</td>
                         <td>
                             {% if assignment.start_date and assignment.end_date %}
                                 <span class="badge bg-light text-dark fw-normal border">{{ assignment.start_date|date:"d/m/Y" }} - {{ assignment.end_date|date:"d/m/Y" }}</span>

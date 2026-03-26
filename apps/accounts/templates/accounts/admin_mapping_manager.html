@@ -3,8 +3,8 @@
 {% block content %}
 <div class="mt-4 mb-4 pb-2 border-bottom d-flex justify-content-between align-items-center">
     <div>
-        <h2 class="fw-bold text-dark"><i class="bi bi-diagram-3-fill text-primary"></i> Phân công Giảng viên - Doanh nghiệp</h2>
-        <p class="text-muted mb-0">Quản lý danh sách giảng viên phụ trách thực tập tại các doanh nghiệp</p>
+        <h2 class="fw-bold text-dark"><i class="bi bi-diagram-3-fill text-primary"></i> Phân công Giảng viên - Doanh nghiệp Đối tác</h2>
+        <p class="text-muted mb-0">Thiết lập giảng viên hướng dẫn mặc định cho từng doanh nghiệp trong hệ thống đối tác. Đối với sinh viên thực tập ngoài hệ thống hãy dùng trang <a href="{% url 'admin_external_lecturer_config' %}">Cấu hình GV Thực tập Ngoài</a>.</p>
     </div>
     <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Về lại Dashboard</a>
 </div>
