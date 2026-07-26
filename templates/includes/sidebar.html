@@ -1,6 +1,77 @@
 <div class="sidebar p-3">
   <ul class="nav flex-column">
-    <li class="nav-item mb-2"><a class="nav-link" href="/accounts/dashboard/">Dashboard</a></li>
-    <!-- Add more links as needed -->
+    <li class="nav-item mb-2"><a class="nav-link" href="/accounts/dashboard/">Trang chủ</a></li>
+    
+    {% if request.user.is_authenticated %}
+      <!-- Links for Student -->
+      {% if request.user.role == 'student' %}
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="{% url 'recruitment:student_post_list' %}">Tin tuyển dụng thực tập</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="{% url 'recruitment:student_cv_list' %}">CV của tôi</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="{% url 'recruitment:student_application_list' %}">Lịch sử ứng tuyển</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'external-request' in request.path %}active{% endif %}" href="{% url 'recruitment:student_external_request_create' %}">
+            <i class="bi bi-briefcase me-1"></i> Đăng ký thực tập ngoài
+          </a>
+        </li>
+        <li class="nav-item mt-3 mb-1 px-3 text-uppercase text-muted small fw-bold">Tiến trình Thực tập</li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'reports/student/moodle' in request.path %}active{% endif %}" href="{% url 'reports:student_moodle_dashboard' %}">
+            <i class="bi bi-mortarboard me-2"></i> Tổng quan Báo cáo
+          </a>
+        </li>
+      
+      <!-- Links for Department -->
+      {% elif request.user.role == 'department' %}
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="{% url 'recruitment:department_post_list' %}">Tin tuyển dụng của tôi</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="{% url 'recruitment:department_post_create' %}">Đăng tin mới</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link" href="{% url 'recruitment:department_application_list' %}">Xem hồ sơ ứng tuyển</a>
+        </li>
+      
+      <!-- Links for Lecturer -->
+      {% elif request.user.role == 'lecturer' %}
+        <li class="nav-item mt-3 mb-1 px-3 text-uppercase text-muted small fw-bold">Tiến trình Hướng dẫn</li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'reports/dashboard' in request.path %}active{% endif %}" href="{% url 'reports:moodle_dashboard' %}">
+            <i class="bi bi-grid-1x2 me-2"></i> Dashboard Moodle
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'reports/lecturer' in request.path %}active{% endif %}" href="{% url 'reports:lecturer_dashboard' %}">
+            <i class="bi bi-people me-2"></i> Sinh viên đang phụ trách
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'reports/statistics' in request.path %}active{% endif %}" href="{% url 'reports:statistics_dashboard' %}">
+            <i class="bi bi-bar-chart me-2"></i> Thống kê thực tập
+          </a>
+        </li>
+      <!-- Links for Admin -->
+      {% elif request.user.role == 'admin' %}
+        <li class="nav-item mt-3 mb-1 px-3 text-uppercase text-muted small fw-bold">Quản trị & Thống kê</li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'reports/statistics' in request.path %}active{% endif %}" href="{% url 'reports:statistics_dashboard' %}">
+            <i class="bi bi-bar-chart me-2"></i> Thống kê thực tập
+          </a>
+        </li>
+      {% elif request.user.role == 'mentor' %}
+        <li class="nav-item mt-3 mb-1 px-3 text-uppercase text-muted small fw-bold">Tiến trình Mentor</li>
+        <li class="nav-item mb-2">
+          <a class="nav-link {% if 'reports/mentor' in request.path %}active{% endif %}" href="{% url 'reports:mentor_dashboard' %}">
+            <i class="bi bi-mortarboard me-2"></i> Mentor Dashboard
+          </a>
+        </li>
+      {% endif %}
+    {% endif %}
   </ul>
 </div>

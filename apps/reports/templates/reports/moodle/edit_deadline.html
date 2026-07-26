@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_weekly %}Chỉnh sửa Tuần {{ week_number }}{% else %}Chỉnh sửa Báo cáo Tổng kết{% endif %}{% endblock %}
+{% block content %}
+<div class="mt-3 mb-3">
+    <a href="{% url 'reports:moodle_dashboard' %}" class="text-decoration-none text-muted"><i class="bi bi-arrow-left me-1"></i>Quay lại dashboard</a>
+    <h2 class="mt-2">
+        {% if is_weekly %}
+        <span class="badge bg-primary me-2">{{ week_number }}</span>Chỉnh sửa Tuần {{ week_number }}
+        {% else %}
+        <i class="bi bi-file-earmark-check me-2" style="color:#7b1fa2"></i>Chỉnh sửa Báo cáo Tổng kết
+        {% endif %}
+    </h2>
+    <p class="text-muted">Cập nhật tiêu đề, yêu cầu chi tiết và deadline cho {% if is_weekly %}bài tập tuần này{% else %}báo cáo tổng kết{% endif %}.</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.title.label }}</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+                        <div class="form-text">Tiêu đề sẽ hiển thị trên dashboard (VD: "Cài đặt Linux server và các dịch vụ")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.description.label }}</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+                        <div class="form-text">Mô tả chi tiết yêu cầu — sinh viên sẽ xem được nội dung này</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">{{ form.deadline.label }}</label>
+                        {{ form.deadline }}
+                        {% if form.deadline.errors %}<div class="text-danger small mt-1">{{ form.deadline.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-lg me-1"></i>Lưu thay đổi</button>
+                        <a href="{% url 'reports:moodle_dashboard' %}" class="btn btn-outline-secondary">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body p-3">
+                <h6 class="fw-bold text-muted"><i class="bi bi-info-circle me-1"></i>Hướng dẫn</h6>
+                <ul class="small text-muted mb-0">
+                    <li>Tiêu đề ngắn gọn, mô tả rõ nội dung bài tập</li>
+                    <li>Phần yêu cầu chi tiết giúp sinh viên hiểu rõ việc cần làm</li>
+                    <li>Deadline sẽ áp dụng cho <strong>tất cả sinh viên</strong> trong kỳ</li>
+                    <li>Thay đổi sẽ có hiệu lực ngay lập tức</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

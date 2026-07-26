@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Tìm thực tập{% endblock %}
+{% block content %}
+<div class="mt-4 mb-4">
+    <h2>Danh sách tin tuyển dụng</h2>
+    <p class="text-muted">Khám phá các cơ hội thực tập đang mở</p>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for post in posts %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-primary">{{ post.title }}</h5>
+                <h6 class="card-subtitle mb-3 text-muted">
+                    Doanh nghiệp: {{ post.department|default:"Chưa cập nhật" }}
+                </h6>
+                <p class="card-text text-truncate" style="max-height: 4.5rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                    {{ post.description }}
+                </p>
+            </div>
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                <a href="{% url 'recruitment:student_post_detail' post.pk %}" class="btn btn-outline-primary w-100">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Hiện tại không có tin tuyển dụng nào đang mở.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

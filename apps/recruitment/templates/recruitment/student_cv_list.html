@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý CV{% endblock %}
+{% block content %}
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Tải lên CV mới</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100">Upload CV</button>
+                    <small class="text-muted d-block mt-2 text-center text-secondary">
+                        Hỗ trợ định dạng PDF, DOCX
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Kho CV của bạn</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tên CV</th>
+                            <th>Ngày tải lên</th>
+                            <th class="text-end">Tác vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cv in cvs %}
+                        <tr>
+                            <td class="align-middle fw-bold">{{ cv.title }}</td>
+                            <td class="align-middle">{{ cv.updated_at|date:"d/m/Y H:i" }}</td>
+                            <td class="text-end align-middle">
+                                {% if cv.file %}
+                                    <a href="{{ cv.file.url }}" target="_blank" class="btn btn-sm btn-outline-info">Xem file</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                <i class="bi bi-file-earmark-x fs-2 d-block mb-3"></i>
+                                Bạn chưa tải lên CV nào trong hệ thống.<br>
+                                Hãy dùng biểu mẫu bên trái để tải lên bản CV đầu tiên của bạn!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

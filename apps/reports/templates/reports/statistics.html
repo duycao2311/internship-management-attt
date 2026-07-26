@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block title %}Thống kê kết quả thực tập{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start mt-3 mb-4">
+    <div>
+        <h2><i class="bi bi-bar-chart-fill me-2 text-primary"></i> Thống kê kết quả thực tập</h2>
+        <p class="text-muted">Xem tổng quan điểm số, tiến độ và trạng thái báo cáo của sinh viên.</p>
+    </div>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label mb-1 fw-bold text-muted small">Kỳ thực tập</label>
+                <select name="period" class="form-select form-select-sm">
+                    {% for p in all_periods %}
+                    <option value="{{ p.id }}" {% if selected_period and selected_period.id == p.id %}selected{% endif %}>
+                        {{ p.name }}{% if p.is_active %} (Hiện tại){% endif %}
+                    </option>
+                    {% empty %}
+                    <option value="">Chưa có kỳ</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label mb-1 fw-bold text-muted small">Doanh nghiệp</label>
+                <input type="text" name="department" class="form-control form-control-sm" placeholder="Tên doanh nghiệp..." value="{{ current_department }}">
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label mb-1 fw-bold text-muted small">Giảng viên</label>
+                <select name="lecturer" class="form-select form-select-sm" {% if is_lecturer %}disabled{% endif %}>
+                    <option value="">-- Tất cả --</option>
+                    {% for l in lecturers %}
+                    <option value="{{ l.id }}" {% if current_lecturer == l.id|stringformat:"s" %}selected{% endif %}>
+                        {{ l.user.get_full_name|default:l.user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% if is_lecturer %}
+                <!-- Gửi kèm value nếu disabled -->
+                <input type="hidden" name="lecturer" value="{{ current_lecturer }}">
+                {% endif %}
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label mb-1 fw-bold text-muted small">Mentor</label>
+                <select name="mentor" class="form-select form-select-sm">
+                    <option value="">-- Tất cả --</option>
+                    {% for m in mentors %}
+                    <option value="{{ m.id }}" {% if current_mentor == m.id|stringformat:"s" %}selected{% endif %}>
+                        {{ m.user.get_full_name|default:m.user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label mb-1 fw-bold text-muted small">Trạng thái</label>
+                <select name="pass_status" class="form-select form-select-sm">
+                    <option value="">-- Tất cả --</option>
+                    <option value="passed" {% if current_pass_status == 'passed' %}selected{% endif %}>Đạt</option>
+                    <option value="failed" {% if current_pass_status == 'failed' %}selected{% endif %}>Chưa đạt</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label mb-1 fw-bold text-muted small">Vấn đề cần xử lý</label>
+                <select name="issue_status" class="form-select form-select-sm">
+                    <option value="">-- Tất cả --</option>
+                    <option value="missing_weeks" {% if current_issue_status == 'missing_weeks' %}selected{% endif %}>Có tuần thiếu</option>
+                    <option value="late_submissions" {% if current_issue_status == 'late_submissions' %}selected{% endif %}>Có bài nộp muộn</option>
+                    <option value="mentor_ungraded" {% if current_issue_status == 'mentor_ungraded' %}selected{% endif %}>Mentor chưa chấm</option>
+                    <option value="lecturer_ungraded" {% if current_issue_status == 'lecturer_ungraded' %}selected{% endif %}>GV chưa chấm</option>
+                    <option value="no_final_report" {% if current_issue_status == 'no_final_report' %}selected{% endif %}>Chưa có Final</option>
+                </select>
+            </div>
+
+            <div class="col-md-12 d-flex gap-2 justify-content-end mt-3">
+                <button type="submit" class="btn btn-sm btn-primary px-3"><i class="bi bi-funnel"></i> Lọc</button>
+                <a href="{% url 'reports:statistics_dashboard' %}" class="btn btn-sm btn-outline-secondary px-3"><i class="bi bi-arrow-clockwise"></i> Xóa</a>
+                <a href="{% url 'reports:statistics_export' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-success px-3" title="Xuất CSV"><i class="bi bi-filetype-csv"></i> CSV</a>
+                <a href="{% url 'reports:statistics_export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-success px-3" title="Xuất Excel (Kèm Chart)" style="background-color: #107c41; border-color: #107c41;"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Card Tổng quan -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #0d6efd;">
+            <div class="stat-label text-muted">Tổng sinh viên</div>
+            <div class="stat-value fs-4 fw-bold text-primary">{{ cards.total_students }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #198754;">
+            <div class="stat-label text-muted">Số SV Đạt</div>
+            <div class="stat-value fs-4 fw-bold text-success">{{ cards.passed_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #dc3545;">
+            <div class="stat-label text-muted">Chưa đạt</div>
+            <div class="stat-value fs-4 fw-bold text-danger">{{ cards.failed_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #0dcaf0;">
+            <div class="stat-label text-muted">Tỷ lệ đạt</div>
+            <div class="stat-value fs-4 fw-bold text-info">{{ cards.pass_rate }}%</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #ffc107;">
+            <div class="stat-label text-muted" style="font-size: 0.75rem;">Mentor chưa chấm</div>
+            <div class="stat-value fs-4 fw-bold text-warning">{{ cards.mentor_ungraded_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #ffc107;">
+            <div class="stat-label text-muted" style="font-size: 0.75rem;">GV chưa chấm</div>
+            <div class="stat-value fs-4 fw-bold text-warning">{{ cards.lecturer_ungraded_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #dc3545;">
+            <div class="stat-label text-muted" style="font-size: 0.75rem;">Tổng tuần thiếu</div>
+            <div class="stat-value fs-4 fw-bold text-danger">{{ cards.total_missing_weeks }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid #fd7e14;">
+            <div class="stat-label text-muted" style="font-size: 0.75rem;">Tổng bài nộp muộn</div>
+            <div class="stat-value fs-4 fw-bold" style="color: #fd7e14;">{{ cards.total_late_submissions }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng dữ liệu -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3 text-center" width="5%">STT</th>
+                        <th width="15%">Sinh viên</th>
+                        <th width="16%">Doanh nghiệp</th>
+                        <th width="13%">Giảng viên</th>
+                        <th width="13%">Mentor</th>
+                        <th class="text-center" width="7%">Tuần TB</th>
+                        <th class="text-center" width="7%">Final</th>
+                        <th class="text-center" width="8%">Điểm Tổng</th>
+                        <th class="text-center" width="8%">Trạng thái</th>
+                        <th class="text-center" width="4%" title="Số tuần thiếu"><i class="bi bi-calendar-x fs-5 text-danger"></i></th>
+                        <th class="text-center" width="4%" title="Số bài nộp muộn"><i class="bi bi-clock-history fs-5 text-warning"></i></th>
+                        <th class="text-center" width="6%">Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr class="{% if row.risk_level == 'high' %}table-danger{% endif %}">
+                        <td class="ps-3 text-center text-muted">{{ forloop.counter }}</td>
+                        
+                        <!-- Sinh viên -->
+                        <td>
+                            {% if row.student %}
+                            <div class="fw-bold text-dark">{{ row.student.user.get_full_name|default:row.student.user.username }}</div>
+                            <div class="text-muted" style="font-size: 0.75rem">{{ row.student.student_id|default:"" }}</div>
+                            {% else %}
+                            <span class="text-muted fst-italic">N/A</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Doanh nghiệp -->
+                        <td>
+                            <div class="text-truncate" style="max-width: 150px;" title="{{ row.company }}">
+                                {{ row.company }}
+                            </div>
+                        </td>
+                        
+                        <!-- Giảng viên -->
+                        <td>
+                            {% if row.lecturer %}
+                            <div class="text-truncate" style="max-width: 130px;">
+                                {{ row.lecturer.user.get_full_name|default:row.lecturer.user.username }}
+                            </div>
+                            {% else %}
+                            <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Mentor -->
+                        <td>
+                            {% if row.mentor %}
+                            <div class="text-truncate" style="max-width: 130px;">
+                                {{ row.mentor.user.get_full_name|default:row.mentor.user.username }}
+                            </div>
+                            {% else %}
+                            <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Điểm Tuần TB -->
+                        <td class="text-center fw-medium text-secondary">
+                            {% if row.weekly_average %}
+                            {{ row.weekly_average|floatformat:1 }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Điểm Final -->
+                        <td class="text-center fw-medium text-secondary">
+                            {% if row.final_score %}
+                            {{ row.final_score|floatformat:1 }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Điểm Tổng -->
+                        <td class="text-center fw-bold" style="font-size: 1.1rem;">
+                            {% if row.total_score %}
+                            <span class="{% if row.total_score < 4 %}text-danger{% else %}text-primary{% endif %}">{{ row.total_score|floatformat:1 }}</span>
+                            {% else %}
+                            <span class="text-primary">-</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Trạng thái -->
+                        <td class="text-center">
+                            {% if row.is_passed %}
+                            <span class="badge bg-success">Đạt</span>
+                            {% else %}
+                            <span class="badge bg-danger">Chưa đạt</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Tuần thiếu -->
+                        <td class="text-center">
+                            {% if row.missing_week_count > 0 %}
+                                {% if row.risk_level == 'high' and row.missing_week_count >= 5 %}
+                                <span class="badge rounded-pill bg-danger fs-6 shadow-sm" title="Nguy cơ cao: Thiếu quá nhiều tuần">{{ row.missing_week_count }}</span>
+                                {% else %}
+                                <span class="badge rounded-pill bg-warning text-dark">{{ row.missing_week_count }}</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="text-success"><i class="bi bi-check-circle"></i></span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Bài muộn -->
+                        <td class="text-center pe-3">
+                            {% if row.late_submission_count > 0 %}
+                            <span class="badge rounded-pill bg-warning text-dark">{{ row.late_submission_count }}</span>
+                            {% else %}
+                            <span class="text-success"><i class="bi bi-check-circle"></i></span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Chi tiết -->
+                        <td class="text-center">
+                            <a href="{% url 'reports:statistics_assignment_detail' row.assignment.id %}" class="btn btn-sm btn-outline-info p-1 px-2" title="Xem chi tiết"><i class="bi bi-eye"></i> Xem</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="12" class="text-center py-5 text-muted">
+                            <i class="bi bi-clipboard-x fs-1 mb-3 d-block text-secondary"></i>
+                            Không có dữ liệu thống kê cho bộ lọc hiện tại.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+</style>
+{% endblock %}

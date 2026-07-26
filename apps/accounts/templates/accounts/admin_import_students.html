@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Import Danh sách Sinh viên{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold text-dark"><i class="bi bi-file-earmark-spreadsheet text-success"></i> Import Danh sách Sinh viên</h2>
+            <p class="text-muted mb-0">Tải lên file Excel (.xlsx) để tạo hoặc cập nhật tài khoản sinh viên trong hệ thống.</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Về Dashboard</a>
+    </div>
+
+    <div class="row g-4">
+        {# Form upload #}
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 border-top border-success border-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Tải lên file Excel</h5>
+                    <p class="text-muted small mb-3">
+                        File Excel cần có các cột (tên cột linh hoạt, chấp nhận nhiều biến thể):
+                    </p>
+                    <ul class="text-muted small mb-4">
+                        <li><strong>Mã SV</strong> - mã sinh viên (bắt buộc)</li>
+                        <li><strong>Họ đệm</strong> - họ và tên đệm</li>
+                        <li><strong>Tên</strong> - tên (bắt buộc)</li>
+                        <li><strong>Lớp</strong> - mã lớp</li>
+                    </ul>
+
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="excel_file" class="form-label fw-bold">Chọn file .xlsx</label>
+                            <input type="file" name="excel_file" id="excel_file"
+                                   class="form-control" accept=".xlsx" required>
+                        </div>
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="only_attt" name="only_attt" value="on"
+                                   {% if only_attt %}checked{% endif %}>
+                            <label class="form-check-label" for="only_attt">
+                                Chỉ import sinh viên khoa ATTT
+                                <small class="text-muted d-block">Lọc những dòng có "AT" trong Mã SV hoặc Lớp</small>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-success fw-bold w-100">
+                            <i class="bi bi-upload me-2"></i> Bắt đầu Import
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {# Ket qua sau khi import #}
+        <div class="col-md-7">
+            {% if result %}
+            <div class="card shadow-sm border-0 border-top {% if result.failed > 0 or result.errors %}border-danger{% else %}border-success{% endif %} border-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-bar-chart-fill text-success"></i> Kết quả Import
+                        {% if only_attt %}<span class="badge bg-warning text-dark ms-2 fw-normal small">Chỉ ATTT</span>{% endif %}
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-dark">{{ result.total }}</div>
+                                <div class="small text-muted">Tổng dòng đọc</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-success">{{ result.users_created }}</div>
+                                <div class="small text-muted">User tạo mới</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-primary">{{ result.users_updated }}</div>
+                                <div class="small text-muted">User cập nhật</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-info">{{ result.profiles_created }}</div>
+                                <div class="small text-muted">Profile tạo mới</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="bg-light rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-secondary">{{ result.profiles_updated }}</div>
+                                <div class="small text-muted">Profile cập nhật</div>
+                            </div>
+                        </div>
+                        {% if result.skipped_not_attt > 0 %}
+                        <div class="col-6 col-md-4">
+                            <div class="bg-warning bg-opacity-10 rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-warning">{{ result.skipped_not_attt }}</div>
+                                <div class="small text-muted">Bỏ qua (non-ATTT)</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if result.failed > 0 %}
+                        <div class="col-6 col-md-4">
+                            <div class="bg-danger bg-opacity-10 rounded-3 p-3 text-center">
+                                <div class="display-6 fw-bold text-danger">{{ result.failed }}</div>
+                                <div class="small text-muted">Dòng bị lỗi</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if result.errors %}
+                    <div class="alert alert-danger p-3">
+                        <strong>Chi tiết lỗi:</strong>
+                        <ul class="mb-0 mt-2 small">
+                            {% for err in result.errors %}
+                            <li>{{ err }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if result.failed == 0 and not result.errors %}
+                    <div class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        Import hoàn thành không có lỗi.
+                        Mật khẩu mặc định cho tài khoản mới: <strong>thuctapattt@</strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card border-0 bg-light h-100 d-flex align-items-center justify-content-center">
+                <div class="text-center text-muted py-5 ">
+                    <i class="bi bi-file-earmark-arrow-up" style="font-size: 4rem; opacity: 0.3;"></i>
+                    <p class="mt-3">Kết quả import sẽ hiển thị tại đây sau khi upload file.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

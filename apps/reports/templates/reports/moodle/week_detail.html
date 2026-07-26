@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% block title %}Tuần {{ week_number }} — {% if deadline_obj and deadline_obj.title %}{{ deadline_obj.title }}{% else %}Chi tiết{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+.assignment-header { background: #fff; border: 1px solid #e0e0e0; border-left: 4px solid #1976d2; border-radius: 0 8px 8px 0; padding: 20px 24px; margin-bottom: 16px; }
+.assignment-header h3 { color: #1565c0; font-weight: 700; margin: 0 0 8px; }
+.submission-table th { background: #f5f5f5; font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .3px; color: #616161; }
+.submission-table td { font-size: .9rem; vertical-align: middle; }
+.status-badge { font-size: .78rem; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+.grade-input { width: 70px; text-align: center; }
+.filter-bar { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 16px; }
+.tab-custom .nav-link { font-weight: 600; color: #757575; border: none; padding: 8px 16px; border-radius: 20px; font-size: .88rem; }
+.tab-custom .nav-link.active { background: #1565c0; color: #fff; }
+.tab-custom .nav-link:hover:not(.active) { background: #e3f2fd; color: #1565c0; }
+/* Comment styles */
+.comment-section { background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; margin-top: 12px; }
+.comment-item { background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
+.comment-item .comment-author { font-weight: 700; font-size: .88rem; }
+.comment-item .comment-role { font-size: .72rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+.comment-item .comment-time { font-size: .78rem; color: #9e9e9e; }
+.comment-item .comment-content { font-size: .9rem; margin-top: 6px; white-space: pre-wrap; }
+.reply-item { margin-left: 28px; border-left: 3px solid #e3f2fd; }
+.comment-toggle { cursor: pointer; font-size: .85rem; color: #1565c0; font-weight: 600; }
+.comment-toggle:hover { text-decoration: underline; }
+.detail-expand { background: #f8f9fa; border-top: 1px solid #eee; padding: 16px 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mt-3 mb-3">
+    <a href="{% url 'reports:moodle_dashboard' %}{% if selected_period %}?period={{ selected_period.id }}{% endif %}" class="text-decoration-none text-muted"><i class="bi bi-arrow-left me-1"></i>Quay lại dashboard</a>
+</div>
+
+{# ===== ASSIGNMENT HEADER ===== #}
+<div class="assignment-header">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h3>
+                <span class="badge bg-primary me-2" style="font-size:.9rem">{{ week_number }}</span>
+                Bài {{ week_number }}. {% if deadline_obj and deadline_obj.title %}{{ deadline_obj.title }}{% else %}Báo cáo tuần {{ week_number }}{% endif %}
+            </h3>
+            <div class="d-flex flex-wrap gap-3 text-muted" style="font-size:.9rem">
+                {% if selected_period %}
+                <span><i class="bi bi-calendar-event me-1"></i><strong>Opened:</strong> {{ selected_period.start_date|date:"d/m/Y" }}</span>
+                {% endif %}
+                {% if deadline %}
+                <span><i class="bi bi-clock me-1"></i><strong>Due:</strong> {{ deadline|date:"d/m/Y, H:i" }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success fs-6">{{ submitted_count }} nộp</span>
+            <span class="badge bg-secondary fs-6">{{ total_count }} tổng</span>
+            {% if not is_mentor and deadline_obj %}
+            <a href="{% url 'reports:edit_weekly_deadline' deadline_obj.id %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil-square me-1"></i>Sửa</a>
+            {% endif %}
+        </div>
+    </div>
+    {% if deadline_obj and deadline_obj.description %}
+    <div class="mt-3 p-3 bg-light rounded" style="border-left: 3px solid #90caf9;">
+        <div class="fw-bold small text-muted mb-1"><i class="bi bi-info-circle me-1"></i>Yêu cầu bài tập</div>
+        <div style="white-space: pre-wrap;">{{ deadline_obj.description }}</div>
+    </div>
+    {% endif %}
+</div>
+
+{# ===== TAB FILTER ===== #}
+<ul class="nav tab-custom mb-3 gap-1">
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'all' %}active{% endif %}" href="?tab=all{% if selected_period %}&period={{ selected_period.id }}{% endif %}{% if company_q %}&company={{ company_q }}{% endif %}{% if group_id %}&group={{ group_id }}{% endif %}">
+            Tất cả <span class="ms-1 small">({{ total_count }})</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'submitted' %}active{% endif %}" href="?tab=submitted{% if selected_period %}&period={{ selected_period.id }}{% endif %}{% if company_q %}&company={{ company_q }}{% endif %}{% if group_id %}&group={{ group_id }}{% endif %}">
+            Đã nộp <span class="ms-1 small">({{ submitted_count }})</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {% if tab == 'not_submitted' %}active{% endif %}" href="?tab=not_submitted{% if selected_period %}&period={{ selected_period.id }}{% endif %}{% if company_q %}&company={{ company_q }}{% endif %}{% if group_id %}&group={{ group_id }}{% endif %}">
+            Chưa nộp
+        </a>
+    </li>
+</ul>
+
+{# ===== FILTERS ===== #}
+<div class="filter-bar mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <input type="hidden" name="tab" value="{{ tab }}">
+        {% if selected_period %}<input type="hidden" name="period" value="{{ selected_period.id }}">{% endif %}
+        <div class="col-md-4">
+            <label class="form-label small text-muted mb-1"><i class="bi bi-building me-1"></i>Doanh nghiệp</label>
+            <input type="text" name="company" class="form-control form-control-sm" value="{{ company_q }}" placeholder="Tìm theo tên...">
+        </div>
+        {% if not is_mentor and mentor_groups %}
+        <div class="col-md-3">
+            <label class="form-label small text-muted mb-1"><i class="bi bi-people me-1"></i>Nhóm Mentor</label>
+            <select name="group" class="form-select form-select-sm">
+                <option value="">Tất cả</option>
+                {% for mg in mentor_groups %}
+                <option value="{{ mg.id }}" {% if group_id == mg.id|stringformat:"d" %}selected{% endif %}>{{ mg.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-sm btn-primary w-100"><i class="bi bi-funnel me-1"></i>Lọc</button>
+        </div>
+    </form>
+</div>
+
+{# ===== TABLE ===== #}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table submission-table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3" style="min-width:200px">Sinh viên</th>
+                        <th>Doanh nghiệp</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th>Nộp lúc</th>
+                        <th class="text-center">Muộn</th>
+                        <th class="text-center" style="min-width:130px">Điểm Mentor</th>
+                        <th class="text-center" style="min-width:130px">Điểm GV</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td class="ps-3">
+                            {% if row.student %}
+                            <div class="fw-bold">{{ row.student.user.get_full_name|default:row.student.user.username }}</div>
+                            <div class="text-muted small">{{ row.student.user.email|default:row.student.student_id }}</div>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="small">{{ row.assignment.get_company_name }}</td>
+                        <td class="text-center">
+                            {% if row.is_submitted %}
+                                {% if row.is_late %}
+                                <span class="status-badge" style="background:#fff3e0;color:#e65100">Nộp muộn</span>
+                                {% else %}
+                                <span class="status-badge" style="background:#e8f5e9;color:#2e7d32">Đã nộp</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="status-badge" style="background:#f5f5f5;color:#9e9e9e">Chưa nộp</span>
+                            {% endif %}
+                        </td>
+                        <td class="small">{% if row.submitted_at %}{{ row.submitted_at|date:"d/m H:i" }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                        <td class="text-center">
+                            {% if row.is_late %}<i class="bi bi-exclamation-triangle-fill text-danger"></i>{% elif row.is_submitted %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}—{% endif %}
+                        </td>
+                        {# Mentor score / quick grade #}
+                        <td class="text-center">
+                            {% if row.mentor_grade %}
+                            <span class="fw-bold fs-6">{{ row.mentor_grade.score }}</span>
+                            {% elif row.is_submitted and is_mentor and row.report_id %}
+                            <form class="quick-grade-form d-inline-flex gap-1 justify-content-center" data-url="{% url 'reports:quick_grade' 'weekly' row.report_id %}">
+                                {% csrf_token %}
+                                <input type="number" name="score" class="form-control form-control-sm grade-input" step="0.25" min="0" max="10" placeholder="0-10" required>
+                                <button type="submit" class="btn btn-sm btn-success" title="Lưu"><i class="bi bi-check-lg"></i></button>
+                            </form>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        {# Lecturer score / quick grade #}
+                        <td class="text-center">
+                            {% if row.lecturer_grade %}
+                            <span class="fw-bold fs-6">{{ row.lecturer_grade.score }}</span>
+                            {% elif row.is_submitted and not is_mentor and row.report_id %}
+                            <form class="quick-grade-form d-inline-flex gap-1 justify-content-center" data-url="{% url 'reports:quick_grade' 'weekly' row.report_id %}">
+                                {% csrf_token %}
+                                <input type="number" name="score" class="form-control form-control-sm grade-input" step="0.25" min="0" max="10" placeholder="0-10" required>
+                                <button type="submit" class="btn btn-sm btn-success" title="Lưu"><i class="bi bi-check-lg"></i></button>
+                            </form>
+                            {% else %}<span class="text-muted">—</span>{% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if row.report_id and row.is_submitted %}
+                            <a href="{% url 'reports:weekly_report_detail' row.report_id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i>Xem</a>
+                            <button type="button" class="btn btn-sm btn-outline-info ms-1" data-bs-toggle="collapse" data-bs-target="#comments-{{ row.report_id }}" title="Bình luận">
+                                <i class="bi bi-chat-dots"></i>
+                                {% if row.comments %}<span class="badge bg-info ms-1">{{ row.comments|length }}</span>{% endif %}
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {# ===== COMMENT EXPAND ROW ===== #}
+                    {% if row.report_id and row.is_submitted %}
+                    <tr class="collapse" id="comments-{{ row.report_id }}">
+                        <td colspan="8" class="p-0">
+                            <div class="detail-expand">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold text-muted mb-0"><i class="bi bi-chat-dots me-1"></i>Bình luận — {{ row.student.user.get_full_name|default:row.student.user.username }}</h6>
+                                    <span class="small text-muted">{{ row.comments|length }} bình luận</span>
+                                </div>
+
+                                {# Existing comments #}
+                                {% for comment in row.comments %}
+                                <div class="comment-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="comment-author">{{ comment.author.get_full_name|default:comment.author.username }}</span>
+                                            {% if comment.author.role == 'lecturer' %}
+                                            <span class="comment-role bg-primary text-white">Giảng viên</span>
+                                            {% elif comment.author.role == 'mentor' %}
+                                            <span class="comment-role bg-info text-white">Mentor</span>
+                                            {% elif comment.author.role == 'student' %}
+                                            <span class="comment-role bg-secondary text-white">Sinh viên</span>
+                                            {% endif %}
+                                        </div>
+                                        <span class="comment-time">{{ comment.created_at|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <div class="comment-content">{{ comment.content }}</div>
+
+                                    {# Replies #}
+                                    {% for reply in comment.replies.all %}
+                                    <div class="comment-item reply-item mt-2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="comment-author">{{ reply.author.get_full_name|default:reply.author.username }}</span>
+                                                {% if reply.author.role == 'lecturer' %}
+                                                <span class="comment-role bg-primary text-white">Giảng viên</span>
+                                                {% elif reply.author.role == 'mentor' %}
+                                                <span class="comment-role bg-info text-white">Mentor</span>
+                                                {% elif reply.author.role == 'student' %}
+                                                <span class="comment-role bg-secondary text-white">Sinh viên</span>
+                                                {% endif %}
+                                            </div>
+                                            <span class="comment-time">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
+                                        </div>
+                                        <div class="comment-content">{{ reply.content }}</div>
+                                    </div>
+                                    {% endfor %}
+
+                                    {# Reply form #}
+                                    <div class="mt-2">
+                                        <a class="comment-toggle" data-bs-toggle="collapse" href="#reply-{{ comment.id }}">
+                                            <i class="bi bi-reply me-1"></i>Phản hồi
+                                        </a>
+                                        <div class="collapse mt-2" id="reply-{{ comment.id }}">
+                                            <form method="post" action="{% url 'reports:reply_comment' comment.id %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                <textarea name="content" class="form-control form-control-sm mb-2" rows="2" placeholder="Nhập phản hồi..."></textarea>
+                                                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-send me-1"></i>Gửi</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="text-muted small text-center py-2"><i class="bi bi-chat me-1"></i>Chưa có bình luận nào</div>
+                                {% endfor %}
+
+                                {# New comment form #}
+                                <div class="mt-3 pt-3 border-top">
+                                    <form method="post" action="{% url 'reports:add_comment' 'weekly' row.report_id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <div class="d-flex gap-2">
+                                            <textarea name="content" class="form-control form-control-sm" rows="2" placeholder="Thêm bình luận..." required></textarea>
+                                            <button type="submit" class="btn btn-sm btn-primary align-self-end" style="white-space:nowrap"><i class="bi bi-send me-1"></i>Gửi</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr><td colspan="8" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Không có dữ liệu</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.quick-grade-form').forEach(form => {
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const url = form.dataset.url;
+        const data = new FormData(form);
+        const btn = form.querySelector('button[type=submit]');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        try {
+            const resp = await fetch(url, {method:'POST', body: data, headers:{'X-Requested-With':'XMLHttpRequest'}});
+            const json = await resp.json();
+            if (json.ok) {
+                form.innerHTML = '<span class="fw-bold fs-6 text-success">' + json.score + '</span>';
+            } else {
+                alert(json.error || 'Lỗi');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            }
+        } catch(err) {
+            alert('Lỗi kết nối');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+        }
+    });
+});
+</script>
+{% endblock %}

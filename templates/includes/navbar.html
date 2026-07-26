@@ -1,16 +1,22 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+<nav class="navbar navbar-expand-lg">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center" href="/">
-      <img src="/static/images/logo-ptit.jpg" alt="PTIT Logo" height="40" class="me-2">
-      <img src="/static/images/logo-attt.jpg" alt="ATTT Logo" height="40">
-      <span class="ms-2 fw-bold">Internship Management</span>
+      <img src="/static/images/logo-ptit.jpg" alt="PTIT" height="32" class="me-2">
+      <img src="/static/images/logo-attt.jpg" alt="ATTT" height="32" class="me-2">
+      <span>Quản lý Thực tập — Khoa ATTT</span>
     </a>
-    <div class="d-flex ms-auto">
+    <div class="d-flex ms-auto align-items-center gap-3">
       {% if request.user.is_authenticated %}
-        <span class="navbar-text me-3">{{ request.user.username }} ({{ request.user.get_role_display }})</span>
-        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Logout</a>
+        <span class="navbar-text">
+          <i class="bi bi-person-circle me-1"></i>
+          {{ request.user.get_full_name|default:request.user.username }}
+          <span class="badge bg-light ms-1">{{ request.user.get_role_display }}</span>
+        </span>
+        <a href="{% url 'profile' %}" class="btn btn-sm btn-light" title="Hồ sơ"><i class="bi bi-gear"></i></a>
+        <a href="{% url 'change_password' %}" class="btn btn-sm btn-light" title="Đổi mật khẩu"><i class="bi bi-key"></i></a>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-secondary">Đăng xuất</a>
       {% else %}
-        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Login</a>
+        <a href="{% url 'login' %}" class="btn btn-sm btn-primary">Đăng nhập</a>
       {% endif %}
     </div>
   </div>

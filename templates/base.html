@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Internship Management{% endblock %}</title>
+    <meta name="description" content="Hệ thống Quản lý Thực tập cuối khóa — Khoa An toàn Thông tin — Học viện PTIT">
+    <title>{% block title %}Quản lý thực tập cuối khóa - Khoa ATTT - PTIT{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/base.css">
-    {# Thêm CSS riêng cho từng trang tại block này #}
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -22,7 +26,7 @@
           {% block content %}{% endblock %}
         </div>
       </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/base.js"></script>
     {# Thêm JS riêng cho từng trang tại block này #}
     {% block extra_js %}{% endblock %}

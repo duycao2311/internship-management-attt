@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Lịch sử ứng tuyển{% endblock %}
+{% block content %}
+<div class="page-header mt-3">
+    <h2>Lịch sử ứng tuyển</h2>
+    <p>Theo dõi danh sách và tiến độ các vị trí bạn đã nộp hồ sơ.</p>
+</div>
+
+<div class="card mb-5">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Công việc</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Ngày nộp</th>
+                        <th>CV sử dụng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="ps-3">
+                            <a href="{% url 'recruitment:student_post_detail' app.post.pk %}" class="text-decoration-none fw-bold">
+                                {{ app.post.title }}
+                            </a>
+                        </td>
+                        <td>{{ app.post.department|default:"Chưa cập nhật doanh nghiệp" }}</td>
+                        <td class="text-muted">{{ app.applied_at|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if app.cv %}
+                                <a href="{{ app.cv.file.url }}" target="_blank" class="text-decoration-none">
+                                    <i class="bi bi-file-earmark-text me-1"></i>{{ app.cv.title }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">CV đã bị xóa</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if app.status == 'pending' %}
+                                <span class="badge bg-warning">Chờ duyệt</span>
+                            {% elif app.status == 'accepted' %}
+                                <div class="mb-1"><span class="badge bg-success">Được chấp nhận</span></div>
+                                {% if app.assignment %}
+                                    <span class="badge bg-primary">Đã chốt thực tập</span>
+                                {% else %}
+                                    <a href="{% url 'recruitment:student_confirm_placement' app.pk %}" class="btn btn-sm btn-outline-success py-0 mt-1">
+                                        Chốt thực tập <i class="bi bi-check-circle"></i>
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-danger">Từ chối</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-inbox d-block mb-2" style="font-size: 2.5rem; color: var(--color-text-muted)"></i>
+                            <div class="fw-bold mb-1">Chưa có đơn ứng tuyển</div>
+                            <a href="{% url 'recruitment:student_post_list' %}" class="btn btn-sm btn-outline-primary mt-2">
+                                Tìm cơ hội thực tập
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- External Internship Section -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <div class="section-title mb-0"><i class="bi bi-briefcase"></i> Thực tập Ngoài hệ thống</div>
+        <p class="text-muted mb-0" style="font-size: 0.82rem">Dành cho bạn đã tự liên hệ doanh nghiệp ngoài danh sách đối tác của Trường</p>
+    </div>
+    <a href="{% url 'recruitment:student_external_request_create' %}" class="btn btn-success btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>Đăng ký mới
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Doanh nghiệp</th>
+                        <th>Vị trí</th>
+                        <th>Ngày nộp</th>
+                        <th>Thời gian dự kiến</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in external_requests %}
+                    <tr>
+                        <td class="ps-3 fw-bold">{{ req.company_name }}</td>
+                        <td>{{ req.position }}</td>
+                        <td class="text-muted">{{ req.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="badge bg-light">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                {{ req.start_date|date:"d/m/y" }} – {{ req.end_date|date:"d/m/y"|default:"(Chưa rõ)" }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if req.status == 'pending' %}
+                                <span class="badge bg-warning">Chờ duyệt</span>
+                            {% elif req.status == 'approved' %}
+                                <div class="mb-1"><span class="badge bg-success">Đã phê duyệt</span></div>
+                                <span class="badge bg-primary">Đã chốt thực tập</span>
+                            {% else %}
+                                <span class="badge bg-danger">Từ chối</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox d-block mb-2" style="font-size: 2rem; color: var(--color-text-muted)"></i>
+                            Chưa có yêu cầu. Bấm <strong>"Đăng ký mới"</strong> để khai báo.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý phân công thực tập{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center mt-3">
+    <div>
+        <h2>Quản lý phân công thực tập</h2>
+        <p>Quản lý toàn bộ phân công sinh viên, giảng viên và doanh nghiệp.</p>
+    </div>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Về trang chính
+    </a>
+</div>
+
+<!-- Bộ lọc -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label mb-1">Tìm sinh viên</label>
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Nhập tên sinh viên..." value="{{ search_q }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1">Giảng viên</label>
+                <select name="lecturer" class="form-select form-select-sm">
+                    <option value="">- Tất cả -</option>
+                    <option value="none" {% if selected_lecturer == 'none' %}selected{% endif %}>Chưa có giảng viên</option>
+                    {% for lec in lecturers %}
+                    <option value="{{ lec.id }}" {% if selected_lecturer == lec.id|stringformat:"i" %}selected{% endif %}>{{ lec.user.get_full_name|default:lec.user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1">Doanh nghiệp</label>
+                <select name="department" class="form-select form-select-sm">
+                    <option value="">- Tất cả -</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_department == dept.id|stringformat:"i" %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1">Trạng thái</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">- Tất cả -</option>
+                    <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Đang thực tập</option>
+                    <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Tạm dừng</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i> Lọc</button>
+                <a href="{% url 'admin_assignment_manager' %}" class="btn btn-sm btn-outline-secondary">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Sinh viên</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Giảng viên hướng dẫn</th>
+                        <th>Thời gian</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td class="ps-3">
+                            {% with student=assignment.get_student %}
+                            {% if student %}
+                            <div class="fw-bold">{{ student.user.get_full_name|default:student.user.username }}</div>
+                            <div class="small text-muted">{{ student.student_id|default:"" }}</div>
+                            {% else %}
+                            <span class="text-muted fst-italic">Không xác định</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ assignment.get_company_name }}</div>
+                            <div class="small text-muted text-truncate" style="max-width: 200px;" title="{{ assignment.get_position_name }}">{{ assignment.get_position_name }}</div>
+                        </td>
+                        <td>
+                            {% if assignment.lecturer %}
+                            <div class="fw-bold" style="color: var(--color-primary)">{{ assignment.lecturer.user.get_full_name|default:assignment.lecturer.user.username }}</div>
+                            {% else %}
+                            <span class="badge bg-danger">Chưa có giảng viên</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small">
+                                <div><span class="text-muted">Từ:</span> <strong>{{ assignment.start_date|date:"d/m/Y"|default:"Chưa rõ" }}</strong></div>
+                                <div><span class="text-muted">Đến:</span> <strong>{{ assignment.end_date|date:"d/m/Y"|default:"Chưa rõ" }}</strong></div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {% if assignment.is_active %}
+                            <span class="badge bg-success">Đang thực tập</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Tạm dừng</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-3 text-nowrap">
+                            <form action="{% url 'admin_assignment_toggle_active' assignment.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                {% if assignment.is_active %}
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Tạm dừng"><i class="bi bi-pause-fill"></i></button>
+                                {% else %}
+                                <button type="submit" class="btn btn-sm btn-outline-success" title="Khôi phục"><i class="bi bi-play-fill"></i></button>
+                                {% endif %}
+                            </form>
+                            <a href="{% url 'admin_assignment_edit' assignment.id %}" class="btn btn-sm btn-outline-primary ms-1" title="Chỉnh sửa">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-inbox d-block mb-2" style="font-size: 2.5rem; color: var(--color-text-muted)"></i>
+                            <div class="fw-bold mb-1">Không tìm thấy kết quả</div>
+                            <div class="text-muted" style="font-size: 0.82rem">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

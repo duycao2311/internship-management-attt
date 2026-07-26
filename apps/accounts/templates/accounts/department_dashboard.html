@@ -1,13 +1,78 @@
 {% extends 'base.html' %}
+{% block title %}Bảng điều khiển - Doanh nghiệp{% endblock %}
 {% block content %}
-<div class="mt-4">
-  <h2>Department Dashboard</h2>
-  <p>Welcome, <strong>{{ request.user.username }}</strong> (Role: {{ request.user.get_role_display }})</p>
-  <div class="card-placeholder">
-    <!-- Thành viên team có thể thêm card, widget, hoặc bảng dữ liệu tại đây -->
-    Thêm nội dung/tiện ích cho khoa tại đây
-  </div>
-  {# Block mở rộng cho các thành phần dashboard #}
-  {% block department_extra %}{% endblock %}
+<div class="container-fluid mt-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold text-dark">
+                <i class="bi bi-building-fill text-success"></i> Xin chào, {{ request.user.get_full_name|default:request.user.username }}!
+            </h1>
+            <p class="fs-6 text-muted mb-0">
+                Chào mừng bạn đến với hệ thống quản lý thực tập. Từ đây bạn có thể quản lý tin tuyển dụng và xét duyệt hồ sơ sinh viên.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# Card 1: Tin tuyen dung cua toi #}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0 border-start border-success border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                            <i class="bi bi-list-task fs-3"></i>
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">Tin tuyển dụng của tôi</h5>
+                    </div>
+                    <p class="card-text text-muted small">
+                        Xem và quản lý danh sách các vị trí thực tập mà doanh nghiệp bạn đang đăng tuyển.
+                    </p>
+                    <a href="{% url 'recruitment:department_post_list' %}" class="btn btn-success mt-3 fw-bold w-100">
+                        <i class="bi bi-eye me-1"></i> Xem danh sách tin
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# Card 2: Đăng tin mới #}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0 border-start border-primary border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                            <i class="bi bi-plus-square-fill fs-3"></i>
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">Đăng tin tuyển dụng mới</h5>
+                    </div>
+                    <p class="card-text text-muted small">
+                        Tạo tin tuyển dụng thực tập mới để sinh viên có thể tìm thấy và nộp hồ sơ vào doanh nghiệp của bạn.
+                    </p>
+                    <a href="{% url 'recruitment:department_post_create' %}" class="btn btn-primary mt-3 fw-bold w-100">
+                        <i class="bi bi-pencil-square me-1"></i> Đăng tin mới
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# Card 3: Hồ sơ ứng tuyển #}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0 border-start border-warning border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning me-3">
+                            <i class="bi bi-inbox-fill fs-3"></i>
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">Hồ sơ ứng tuyển</h5>
+                    </div>
+                    <p class="card-text text-muted small">
+                        Xem và xét duyệt các hồ sơ sinh viên đã nộp vào các vị trí thực tập của doanh nghiệp bạn.
+                    </p>
+                    <a href="{% url 'recruitment:department_application_list' %}" class="btn btn-warning mt-3 fw-bold w-100 text-dark">
+                        <i class="bi bi-person-lines-fill me-1"></i> Xem hồ sơ ứng tuyển
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

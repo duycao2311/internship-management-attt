@@ -1,13 +1,94 @@
 {% extends 'base.html' %}
+{% block title %}Bảng điều khiển - Sinh viên{% endblock %}
 {% block content %}
-<div class="mt-4">
-  <h2>Student Dashboard</h2>
-  <p>Welcome, <strong>{{ request.user.username }}</strong> (Role: {{ request.user.get_role_display }})</p>
-  <div class="card-placeholder">
-    <!-- Thành viên team có thể thêm card, widget, hoặc bảng dữ liệu tại đây -->
-    Thêm nội dung/tiện ích cho sinh viên tại đây
-  </div>
-  {# Block mở rộng cho các thành phần dashboard #}
-  {% block student_extra %}{% endblock %}
+<div class="container-fluid mt-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold text-dark">
+                <i class="bi bi-mortarboard-fill text-primary"></i> Xin chào, {{ request.user.get_full_name|default:request.user.username }}!
+            </h1>
+            <p class="fs-6 text-muted mb-0">
+                Đây là trang điều hướng của bạn trong hệ thống quản lý thực tập. Chọn chức năng bên dưới để bắt đầu.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# Card 1: Tiến trình thực tập (báo cáo) #}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0 border-start border-primary border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                            <i class="bi bi-journal-richtext fs-3"></i>
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">Tiến trình Thực tập</h5>
+                    </div>
+                    <p class="card-text text-muted small">
+                        Xem thông tin phân công thực tập, nộp báo cáo tuần, và xem kết quả đánh giá của giảng viên.
+                    </p>
+                    <a href="{% url 'reports:student_dashboard' %}" class="btn btn-primary mt-3 fw-bold w-100">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Vào trang Báo cáo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# Card 2: Tuyển dụng / ứng tuyển #}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0 border-start border-success border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                            <i class="bi bi-briefcase-fill fs-3"></i>
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">Tìm kiếm & Ứng tuyển</h5>
+                    </div>
+                    <p class="card-text text-muted small">
+                        Xem các tin tuyển dụng thực tập từ doanh nghiệp đối tác, nộp hồ sơ và theo dõi lịch sử ứng tuyển.
+                    </p>
+                    <a href="{% url 'recruitment:student_post_list' %}" class="btn btn-success mt-3 fw-bold w-100">
+                        <i class="bi bi-search me-1"></i> Xem tin tuyển dụng
+                    </a>
+                    <a href="{% url 'recruitment:student_application_list' %}" class="btn btn-outline-success mt-2 fw-bold w-100">
+                        <i class="bi bi-clock-history me-1"></i> Lịch sử ứng tuyển
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# Card 3: Thực tập ngoài #}
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-0 border-start border-warning border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle text-warning me-3">
+                            <i class="bi bi-building-add fs-3"></i>
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">Thực tập ngoài</h5>
+                    </div>
+                    <p class="card-text text-muted small">
+                        Nếu bạn đã tự liên hệ với doanh nghiệp ngoài hệ thống, hãy đăng ký để được xét duyệt và mở khóa module báo cáo.
+                    </p>
+                    <a href="{% url 'recruitment:student_external_request_create' %}" class="btn btn-warning mt-3 fw-bold w-100 text-dark">
+                        <i class="bi bi-plus-circle me-1"></i> Đăng ký thực tập ngoài
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Gợi ý nhanh ở cuối #}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-light border rounded-3 d-flex align-items-center gap-3 mb-0">
+                <i class="bi bi-info-circle-fill text-primary fs-5"></i>
+                <div class="small text-muted">
+                    Bạn cần tải CV lên trước khi ứng tuyển.
+                    <a href="{% url 'recruitment:student_cv_list' %}" class="fw-bold ms-1">Quản lý CV của tôi</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

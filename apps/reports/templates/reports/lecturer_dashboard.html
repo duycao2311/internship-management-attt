@@ -1,0 +1,295 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý hướng dẫn thực tập{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start mt-3">
+    <div>
+        <h2>Tổng quan hướng dẫn</h2>
+        <p>Theo dõi tiến độ báo cáo và đánh giá sinh viên được phân công.</p>
+    </div>
+    <div>
+        <form method="get" class="d-flex align-items-center gap-2">
+            <span class="badge bg-light text-dark border px-3 py-2">
+                <i class="bi bi-calendar3 me-1"></i> Kỳ:
+            </span>
+
+            <select name="period" id="period-select"
+                class="form-select form-select-sm shadow-sm border-0"
+                style="min-width: 220px; border-radius: 10px;"
+                onchange="this.form.submit()">
+
+                {% for period in all_periods %}
+                <option value="{{ period.id }}"
+                    {% if selected_period and selected_period.id == period.id %}selected{% endif %}>
+                    {{ period.name }}{% if period.is_active %} (Hiện tại){% endif %}
+                </option>
+                {% empty %}
+                <option value="">Chưa có kỳ</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+{% if selected_period %}
+<div class="alert alert-info d-flex align-items-center py-2 mb-3">
+    <i class="bi bi-info-circle me-2"></i>
+    <span>
+        Đang xem: <strong>{{ selected_period.name }}</strong>
+        <span class="text-muted ms-1">({{ selected_period.start_date|date:"d/m/Y" }} – {{ selected_period.end_date|date:"d/m/Y" }})</span>
+        {% if selected_period.is_active %}
+        <span class="badge bg-success ms-2">Kỳ hiện tại</span>
+        {% else %}
+        <span class="badge bg-secondary ms-2">Lịch sử</span>
+        {% endif %}
+    </span>
+</div>
+{% endif %}
+
+<!-- Tìm kiếm -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            {% if selected_period %}
+            <input type="hidden" name="period" value="{{ selected_period.id }}">
+            {% endif %}
+            <div class="col-md-4">
+                <label class="form-label mb-1">Tìm sinh viên</label>
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Nhập tên sinh viên..." value="{{ search_q }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label mb-1">Tìm doanh nghiệp</label>
+                <input type="text" name="company" class="form-control form-control-sm" placeholder="Nhập tên doanh nghiệp..." value="{{ search_company }}">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search"></i> Tìm</button>
+                <a href="{% url 'reports:lecturer_dashboard' %}{% if selected_period %}?period={{ selected_period.id }}{% endif %}" class="btn btn-sm btn-outline-secondary">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            {% if selected_period %}
+            <input type="hidden" name="period" value="{{ selected_period.id }}">
+            {% endif %}
+            <div class="col-md-3">
+                <label class="form-label mb-1">Tuần</label>
+                <input type="number" name="week" min="1" max="10" class="form-control form-control-sm" placeholder="Số tuần" value="{{ selected_week|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1">Trạng thái</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="all" {% if status_filter == 'all' %}selected{% endif %}>Tất cả</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Chưa chấm</option>
+                    <option value="graded" {% if status_filter == 'graded' %}selected{% endif %}>Đã chấm</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-filter-circle me-1"></i> Lọc báo cáo</button>
+                <a href="{% url 'reports:lecturer_dashboard' %}{% if selected_period %}?period={{ selected_period.id }}{% endif %}" class="btn btn-sm btn-outline-secondary">Xóa bộ lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Thống kê -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid var(--color-primary);">
+            <div class="stat-label">Tổng sinh viên</div>
+            <div class="stat-value">{{ metrics.total_students }}</div>
+            <div class="stat-detail">
+                {% if metrics.students_no_reports > 0 %}
+                <span class="text-danger"><i class="bi bi-exclamation-triangle"></i> {{ metrics.students_no_reports }} chưa nộp bài</span>
+                {% else %}
+                <span class="text-success"><i class="bi bi-check-circle"></i> Tất cả đã nộp</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid var(--color-primary);">
+            <div class="stat-label">Báo cáo tuần</div>
+            <div class="stat-value">{{ metrics.total_weekly }}</div>
+            <div class="stat-detail">
+                {% if metrics.weekly_waiting > 0 %}
+                <span class="text-warning"><i class="bi bi-clock-history"></i> {{ metrics.weekly_waiting }} chờ chấm</span>
+                {% else %}
+                <span class="text-success"><i class="bi bi-check2-all"></i> Đã chấm hết</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-left: 3px solid var(--color-primary);">
+            <div class="stat-label">Báo cáo tổng kết</div>
+            <div class="stat-value">{{ metrics.total_final }}</div>
+            <div class="stat-detail">
+                {% if metrics.final_waiting > 0 %}
+                <span class="text-warning"><i class="bi bi-clock-history"></i> {{ metrics.final_waiting }} chờ chấm</span>
+                {% else %}
+                <span class="text-muted"><i class="bi bi-check2-all"></i> Đã xử lý</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card text-center" {% if metrics.total_waiting > 0 %}style="border: 2px solid var(--color-danger);"{% endif %}>
+            <div class="stat-label" {% if metrics.total_waiting > 0 %}style="color: var(--color-danger)"{% endif %}>Cần chấm gấp</div>
+            <div class="stat-value" style="font-size: 2rem; {% if metrics.total_waiting > 0 %}color: var(--color-danger){% endif %}">{{ metrics.total_waiting }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="section-title"><i class="bi bi-file-earmark-text"></i> Báo cáo Tuần</div>
+<div class="card mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Sinh viên</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Tuần</th>
+                        <th>Ngày nộp</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-center">Mentor</th>
+                        <th class="text-center">Lecturer</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in weekly_reports %}
+                    {% with mentor_grade=report.mentor_grade lecturer_grade=report.lecturer_grade %}
+                    <tr>
+                        <td class="ps-3">
+                            {% with student=report.assignment.get_student %}
+                            {% if student %}
+                            <div class="fw-bold">{{ student.user.get_full_name|default:student.user.username }}</div>
+                            <div class="text-muted" style="font-size: 0.78rem">{{ student.user.email }}</div>
+                            {% else %}
+                            <span class="text-muted fst-italic">Không xác định</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>{{ report.assignment.get_company_name }}</td>
+                        <td>{{ report.week_number }}</td>
+                        <td>{% if report.submitted_at %}{{ report.submitted_at|date:"d/m/Y H:i" }}{% else %}<span class="text-muted">Chưa nộp</span>{% endif %}</td>
+                        <td class="text-center">
+                            {% if report.is_late %}
+                                <span class="badge bg-danger">Trễ</span>
+                            {% else %}
+                                <span class="badge bg-success">On time</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if mentor_grade %}
+                                {{ mentor_grade.score }}
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if lecturer_grade %}
+                                {{ lecturer_grade.score }}
+                            {% else %}
+                                <span class="text-muted">--</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'reports:weekly_report_detail' report.id %}" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 mb-2 d-block"></i>
+                            Không tìm thấy báo cáo tuần phù hợp với bộ lọc này.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# Báo cáo Tổng kết #}
+<div class="section-title"><i class="bi bi-file-earmark-check"></i> Báo cáo Tổng kết</div>
+<div class="card mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Sinh viên</th>
+                        <th>Doanh nghiệp</th>
+                        <th>Ngày nộp</th>
+                        <th class="text-center">Mentor</th>
+                        <th class="text-center">Giảng viên</th>
+                        <th class="text-center">Kết quả</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in final_reports %}
+                    <tr>
+                        <td class="ps-3">
+                            {% with student=report.assignment.get_student %}
+                                {% if student %}
+                                    <div class="fw-bold">{{ student.user.get_full_name|default:student.user.username }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem">{{ student.user.email }}</div>
+                                {% else %}
+                                    <span class="text-muted fst-italic">Không xác định</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>{{ report.assignment.get_company_name }}</td>
+                        <td>{% if report.submitted_at %}{{ report.submitted_at|date:"d/m/Y H:i" }}{% else %}<span class="text-muted">Chưa nộp</span>{% endif %}</td>
+                        <td class="text-center">
+                            {% if report.mentor_grade %}
+                                <span class="badge bg-success">{{ report.mentor_grade.score }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Chưa chấm</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if report.lecturer_grade %}
+                                <span class="badge bg-success">{{ report.lecturer_grade.score }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Chưa chấm</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if report.mentor_grade and report.lecturer_grade %}
+                                <span class="badge bg-primary">Hoàn tất</span>
+                            {% elif report.mentor_grade or report.lecturer_grade %}
+                                <span class="badge bg-info">Đang chấm</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Chờ</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'reports:final_report_grade_detail' report.id %}" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 mb-2 d-block"></i>
+                            Chưa có báo cáo tổng kết để hiển thị.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Danh sách sinh viên -->
+
+{% endblock %}

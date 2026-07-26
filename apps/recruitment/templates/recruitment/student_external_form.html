@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Khai báo Thực tập Ngoài Hệ thống{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Khai báo Thực tập Ngoài</li>
+            </ol>
+        </nav>
+        
+        <div class="card shadow-sm border-0 border-top border-primary border-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h4 class="fw-bold mb-0 text-primary"><i class="bi bi-briefcase-fill"></i> Khai báo Môi trường Thực tập Ngoài</h4>
+            </div>
+            <div class="card-body px-4 pb-4 bg-light">
+                <div class="alert alert-info border-0 shadow-sm text-dark mb-4">
+                    <i class="bi bi-info-circle-fill text-info"></i>
+                    <strong>Lưu ý:</strong> Dành riêng cho các bạn TỰ LIÊN HỆ Doanh nghiệp ngoài danh sách đối tác của Trường. Dữ liệu sẽ được nộp lên chờ Thầy/Cô Phụ trách (Admin) phê duyệt trước khi áp dụng.
+                </div>
+                
+                <form method="post" class="bg-white p-4 rounded shadow-sm border">
+                    {% csrf_token %}
+                    
+                    <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">1. Thông tin Doanh nghiệp</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-bold">Tên Doanh nghiệp <span class="text-danger">*</span></label>
+                            {{ form.company_name }}
+                            {{ form.company_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Vị trí Thực tập <span class="text-danger">*</span></label>
+                            {{ form.position }}
+                            {{ form.position.errors }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Địa chỉ làm việc <span class="text-danger">*</span></label>
+                        {{ form.address }}
+                        {{ form.address.errors }}
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">2. Thông tin Người Liên hệ (Mentor / HR)</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <label class="form-label fw-bold">Họ & Tên <span class="text-danger">*</span></label>
+                            {{ form.contact_person }}
+                            {{ form.contact_person.errors }}
+                        </div>
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                            {{ form.contact_email }}
+                            {{ form.contact_email.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Số điện thoại</label>
+                            {{ form.contact_phone }}
+                            {{ form.contact_phone.errors }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-3 border-bottom pb-2 mt-4">3. Lịch trình Kế hoạch</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-bold">Ngày bắt đầu <span class="text-danger">*</span></label>
+                            {{ form.start_date }}
+                            {{ form.start_date.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Ngày kết thúc (Có thể để trống)</label>
+                            {{ form.end_date }}
+                            {{ form.end_date.errors }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Ghi chú thêm</label>
+                        {{ form.note }}
+                        {{ form.note.errors }}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-3 fw-bold fs-5">
+                            <i class="bi bi-cloud-arrow-up-fill"></i> Nộp Đề xuất Thực tập Ngoài
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Báo cáo Tổng kết{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <a href="{% url 'reports:student_dashboard' %}" class="text-decoration-none text-muted">&larr; Quay lại trang tóm tắt</a>
+    <h2 class="mt-2">Chi tiết Báo cáo Tổng kết</h2>
+</div>
+
+<div class="card shadow-sm border-0 mb-5">
+    <div class="card-body p-4">
+        <h4 class="text-primary fw-bold">{{ report.title }}</h4>
+        <p class="text-muted small">Nộp ngày: {{ report.submitted_at|date:"d/m/Y H:i" }} | Cập nhật lần cuối: {{ report.updated_at|date:"d/m/Y H:i" }}</p>
+        <hr>
+        
+        <div class="mt-4 mb-4" style="white-space: pre-wrap;">{{ report.content }}</div>
+        
+        {% if report.attachment %}
+        <div class="alert alert-info d-flex align-items-center mb-4">
+            <i class="bi bi-file-earmark-pdf fs-3 me-3"></i>
+            <div>
+                <strong>Tài liệu đính kèm (Bản in bản đầy đủ)</strong><br>
+                <a href="{{ report.attachment.url }}" target="_blank" class="text-decoration-none fw-bold">Tải xuống file tại đây</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <hr class="mt-5">
+        <h5 class="fw-bold mb-3 text-success">Phê duyệt & Nhận xét của Giảng viên</h5>
+        {% if report.feedback %}
+            <div class="p-4 bg-light rounded border border-start-0 border-end-0 border-bottom-0 border-success border-4">
+                <div style="white-space: pre-wrap;">{{ report.feedback.feedback_content }}</div>
+            </div>
+        {% else %}
+            <p class="text-muted fst-italic">Giảng viên hướng dẫn chưa để lại nhận xét chốt điểm trên hệ thống.</p>
+        {% endif %}
+    </div>
+</div>
+
+{# Thêm phần hiển thị điểm mentor và lecturer cho final report #}
+{% if mentor_grade or lecturer_grade %}
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-4">
+        <h5 class="fw-bold mb-3">Điểm số Báo cáo Tổng kết</h5>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="text-muted small">Điểm Mentor</div>
+                <div>
+                    {% if mentor_grade %}
+                        <span class="badge bg-primary" style="font-size: 1rem;">{{ mentor_grade.score }}/10</span>
+                        {% if mentor_grade.comment %}
+                            <p class="mt-2 small text-muted" style="white-space: pre-wrap;">{{ mentor_grade.comment }}</p>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">Chưa chấm</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small">Điểm Giảng viên</div>
+                <div>
+                    {% if lecturer_grade %}
+                        <span class="badge bg-success" style="font-size: 1rem;">{{ lecturer_grade.score }}/10</span>
+                        {% if lecturer_grade.comment %}
+                            <p class="mt-2 small text-muted" style="white-space: pre-wrap;">{{ lecturer_grade.comment }}</p>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">Chưa chấm</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if total_score is not None %}
+        <hr>
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="text-muted small">Tổng điểm</div>
+                <div class="fs-4 fw-bold {% if is_passed %}text-success{% else %}text-danger{% endif %}">
+                    {{ total_score }}/10
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small">Kết quả</div>
+                <div class="mt-2">
+                    {% if is_passed %}
+                        <span class="badge bg-success">Đạt</span>
+                    {% else %}
+                        <span class="badge bg-danger">Không đạt</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

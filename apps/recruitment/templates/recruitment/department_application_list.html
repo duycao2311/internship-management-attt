@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Duyệt hồ sơ ứng tuyển{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <h2>Danh sách hồ sơ ứng tuyển</h2>
+    <p class="text-muted">Quản lý và xét duyệt các đơn xin thực tập vào doanh nghiệp của bạn.</p>
+</div>
+
+<!-- Bộ lọc trạng thái -->
+<ul class="nav nav-pills mb-4">
+    <li class="nav-item">
+        <a class="nav-link {% if not current_status %}active{% endif %}" href="{% url 'recruitment:department_application_list' %}">Tất cả</a>
+    </li>
+    <li class="nav-item ms-2">
+        <a class="nav-link {% if current_status == 'pending' %}active{% endif %}" href="{% url 'recruitment:department_application_list' %}?status=pending">Chờ duyệt</a>
+    </li>
+    <li class="nav-item ms-2">
+        <a class="nav-link {% if current_status == 'accepted' %}active{% endif %}" href="{% url 'recruitment:department_application_list' %}?status=accepted">Đã chấp nhận</a>
+    </li>
+    <li class="nav-item ms-2">
+        <a class="nav-link {% if current_status == 'rejected' %}active{% endif %}" href="{% url 'recruitment:department_application_list' %}?status=rejected">Đã từ chối</a>
+    </li>
+</ul>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Ứng viên</th>
+                        <th>Vị trí ứng tuyển</th>
+                        <th>Thời gian nộp</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td class="align-middle fw-bold">
+                            {{ app.student.user.get_full_name|default:app.student.user.username }}
+                            <div class="small fw-normal text-muted">{{ app.student.student_id }}</div>
+                        </td>
+                        <td class="align-middle text-primary">{{ app.post.title }}</td>
+                        <td class="align-middle">{{ app.applied_at|date:"H:i d/m/Y" }}</td>
+                        <td class="align-middle">
+                            {% if app.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                            {% elif app.status == 'accepted' %}
+                                <span class="badge bg-success">Chấp nhận</span>
+                            {% elif app.status == 'rejected' %}
+                                <span class="badge bg-danger">Từ chối</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end align-middle">
+                            <a href="{% url 'recruitment:department_application_detail' app.pk %}" class="btn btn-sm btn-outline-primary">Xem / Phê duyệt</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-folder2-open fs-2 d-block mb-2"></i>
+                            Không có hồ sơ nào khớp với bộ lọc.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

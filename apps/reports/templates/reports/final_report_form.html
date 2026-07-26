@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Nộp Báo cáo Tổng kết{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-9">
+        <div class="card shadow border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-award me-2"></i>Nộp Báo cáo Tổng kết Thực tập</h5>
+            </div>
+            <div class="card-body p-4 border border-success border-top-0 rounded-bottom">
+                <div class="alert alert-warning mb-4">
+                    <strong>Lưu ý:</strong> Báo cáo Tổng kết chỉ được phép TẠO DUY NHẤT 1 BẢN trên hệ thống. 
+                    Vui lòng chuẩn bị kỹ trước khi bấm xác nhận lưu.
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    
+                    <div class="mt-4 text-end">
+                        <a href="{% url 'reports:student_dashboard' %}" class="btn btn-secondary me-2">Quay lại</a>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">Nộp bản chính thức</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

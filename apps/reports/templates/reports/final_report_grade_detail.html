@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết Báo cáo Tổng kết{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <a href="{% if is_mentor %}{% url 'reports:mentor_dashboard' %}{% else %}{% url 'reports:lecturer_dashboard' %}{% endif %}" class="text-decoration-none text-muted">&larr; Quay lại dashboard</a>
+    <h2 class="mt-2">Báo cáo Tổng kết</h2>
+    <p class="text-muted">Sinh viên: <strong>{{ report.assignment.get_student.user.get_full_name|default:report.assignment.get_student.user.username }}</strong> | Doanh nghiệp: <strong>{{ report.assignment.get_company_name }}</strong></p>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">{{ report.title }}</h5>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="text-muted small">Ngày nộp</div>
+                        <div>{{ report.submitted_at|default:'Chưa nộp'|date:"d/m/Y H:i" }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-muted small">Trạng thái</div>
+                        <div>{% if report.is_submitted %}<span class="badge bg-success">Đã nộp</span>{% elif report.is_locked %}<span class="badge bg-secondary">Đã khóa</span>{% else %}<span class="badge bg-warning text-dark">Chưa nộp</span>{% endif %}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-muted small">Nộp trễ</div>
+                        <div>{% if report.is_late %}<span class="badge bg-danger">Có</span>{% else %}<span class="badge bg-success">Không</span>{% endif %}</div>
+                    </div>
+                </div>
+
+                <div class="mb-4" style="white-space: pre-wrap;">{{ report.content }}</div>
+
+                {% if report.attachment %}
+                <div class="alert alert-info d-flex align-items-center">
+                    <i class="bi bi-paperclip fs-3 me-3"></i>
+                    <div>
+                        <strong>File báo cáo đính kèm</strong><br>
+                        <a href="{{ report.attachment.url }}" target="_blank" class="fw-bold">Tải xuống file đầy đủ</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3">Thông tin đánh giá</h5>
+                
+                {# Đánh giá Mentor #}
+                <div class="mb-4 pb-3 border-bottom">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="text-muted small me-2">Đánh giá Mentor:</span>
+                        {% if mentor_grade %}
+                            <span class="badge bg-success">Đã chấm</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Chưa chấm</span>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-muted small">Điểm</div>
+                            <div class="fs-5 fw-bold">{% if mentor_grade %}{{ mentor_grade.score }}{% else %}-{% endif %}</div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="text-muted small">Nhận xét</div>
+                            <div style="white-space: pre-wrap;">{% if mentor_grade %}{{ mentor_grade.comment|default:'Không có nhận xét' }}{% else %}<span class="text-muted">Chưa có</span>{% endif %}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                {# Đánh giá Giảng viên #}
+                <div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="text-muted small me-2">Đánh giá Giảng viên:</span>
+                        {% if lecturer_grade %}
+                            <span class="badge bg-success">Đã chấm</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Chưa chấm</span>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-muted small">Điểm</div>
+                            <div class="fs-5 fw-bold">{% if lecturer_grade %}{{ lecturer_grade.score }}{% else %}-{% endif %}</div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="text-muted small">Nhận xét</div>
+                            <div style="white-space: pre-wrap;">{% if lecturer_grade %}{{ lecturer_grade.comment|default:'Không có nhận xét' }}{% else %}<span class="text-muted">Chưa có</span>{% endif %}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                {% if is_mentor %}
+                    <h5 class="fw-bold mb-3">Chấm điểm Mentor</h5>
+                {% else %}
+                    <h5 class="fw-bold mb-3">Chấm điểm Lecturer</h5>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ grade_form.score.label }}</label>
+                        {{ grade_form.score }}
+                        {% if grade_form.score.errors %}
+                            <div class="text-danger small mt-1">{{ grade_form.score.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ grade_form.comment.label }}</label>
+                        {{ grade_form.comment }}
+                        {% if grade_form.comment.errors %}
+                            <div class="text-danger small mt-1">{{ grade_form.comment.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Lưu đánh giá</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

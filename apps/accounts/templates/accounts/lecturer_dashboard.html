@@ -1,13 +1,59 @@
 {% extends 'base.html' %}
+{% block title %}Bảng điều khiển - Giảng viên{% endblock %}
 {% block content %}
-<div class="mt-4">
-  <h2>Lecturer Dashboard</h2>
-  <p>Welcome, <strong>{{ request.user.username }}</strong> (Role: {{ request.user.get_role_display }})</p>
-  <div class="card-placeholder">
-    <!-- Thành viên team có thể thêm card, widget, hoặc bảng dữ liệu tại đây -->
-    Thêm nội dung/tiện ích cho giảng viên tại đây
-  </div>
-  {# Block mở rộng cho các thành phần dashboard #}
-  {% block lecturer_extra %}{% endblock %}
+<div class="container mt-5">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold text-primary">Khu vực Giảng viên</h1>
+            <p class="fs-5 text-muted">Xin chào thầy/cô <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>. Bảng điều khiển này cung cấp các lối tắt nhanh đến công cụ quản lý sinh viên thực tập.</p>
+        </div>
+        <div class="col-md-4 text-end d-none d-md-block">
+            <i class="bi bi-mortarboard-fill text-primary opacity-25" style="font-size: 6rem;"></i>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Chuyên trang Báo cáo -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 border-0 border-start border-primary border-4 hover-shadow transition-all">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle text-primary me-3">
+                            <i class="bi bi-people-fill fs-3"></i>
+                        </div>
+                        <h4 class="card-title mb-0 fw-bold">Quản lý Chấm điểm Thực tập</h4>
+                    </div>
+                    <p class="card-text text-muted">
+                        Xem danh sách toàn bộ sinh viên do thầy/cô phụ trách. Kiểm duyệt các báo cáo tuần, theo dõi tiến độ công việc và lập phiếu đánh giá báo cáo chung cuộc.
+                    </p>
+                    <a href="{% url 'reports:lecturer_dashboard' %}" class="btn btn-primary mt-3 px-4 fw-bold">
+                        Vào trang Đánh giá <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hướng dẫn sử dụng -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 border-0 border-start border-info border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle text-info me-3">
+                            <i class="bi bi-info-circle-fill fs-3"></i>
+                        </div>
+                        <h4 class="card-title mb-0 fw-bold">Hướng dẫn sử dụng</h4>
+                    </div>
+                    <ul class="text-muted small mb-3 ps-3">
+                        <li class="mb-1">Nhấn <strong>"Vào trang Đánh giá"</strong> để xem danh sách sinh viên đang phụ trách.</li>
+                        <li class="mb-1">Chọn từng sinh viên để xem báo cáo tuần và nhận xét.</li>
+                        <li class="mb-1">Hoàn thành <strong>Đánh giá cuối kỳ</strong> sau khi sinh viên nộp báo cáo tổng kết.</li>
+                    </ul>
+                    <a href="{% url 'reports:lecturer_dashboard' %}" class="btn btn-outline-info px-4 fw-bold">
+                        Xem danh sách sinh viên <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

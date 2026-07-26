@@ -1,3 +1,279 @@
-body { background: #f8f9fa; }
-.navbar { background: #fff; border-bottom: 1px solid #dee2e6; }
-.sidebar { background: #fff; border-right: 1px solid #dee2e6; min-height: 100vh; }
+/* ============================================
+   Hệ thống Quản lý Thực tập — Khoa ATTT PTIT
+   Bảng màu: Bootstrap chuẩn + PTIT branding
+   ============================================ */
+
+:root {
+  --font-primary: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Chỉ 5 màu chính */
+  --color-primary: #0d6efd;
+  --color-success: #198754;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-info: #0d6efd;
+
+  /* Nền & viền */
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-border: #dee2e6;
+
+  /* Text — contrast cao */
+  --color-text: #212529;
+  --color-text-secondary: #6c757d;
+  --color-text-muted: #adb5bd;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+
+  /* Shadow nhẹ */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-primary);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Navbar === */
+.navbar {
+  background: var(--color-surface) !important;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  box-shadow: var(--shadow-sm);
+}
+.navbar-brand {
+  font-size: 0.85rem !important;
+  font-weight: 600;
+  color: var(--color-text) !important;
+}
+.navbar-brand img { border-radius: 4px; }
+.navbar-text {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary) !important;
+}
+
+/* === Sidebar === */
+.sidebar {
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  min-height: calc(100vh - 56px);
+  padding: 1rem 0.75rem !important;
+}
+.sidebar .nav-link {
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: 150ms ease;
+  margin-bottom: 1px;
+}
+.sidebar .nav-link:hover {
+  color: var(--color-primary);
+  background: #e7f1ff;
+}
+.sidebar .nav-link.active {
+  color: var(--color-primary);
+  background: #e7f1ff;
+  font-weight: 600;
+}
+.sidebar .text-uppercase {
+  font-size: 0.65rem !important;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted) !important;
+}
+
+/* === Cards === */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: none !important;
+}
+
+/* === Tables === */
+.table { font-size: 0.85rem; color: var(--color-text); }
+.table > thead > tr > th {
+  background: #f1f3f5 !important;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 2px solid var(--color-border) !important;
+  white-space: nowrap;
+}
+.table > tbody > tr > td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: middle;
+}
+.table > tbody > tr:last-child > td { border-bottom: none; }
+.table-hover > tbody > tr:hover { background: #f0f4ff !important; }
+
+/* === Badges — nền nhạt, chữ đậm, padding đủ === */
+.badge {
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  border-radius: 4px !important;
+  letter-spacing: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+/* Đang thực tập / Hoạt động */
+.badge.bg-success {
+  background: #d1e7dd !important;
+  color: #0f5132 !important;
+}
+/* Chờ duyệt */
+.badge.bg-warning {
+  background: #fff3cd !important;
+  color: #664d03 !important;
+}
+/* Từ chối / Tạm dừng */
+.badge.bg-danger {
+  background: #f8d7da !important;
+  color: #842029 !important;
+}
+/* Thông tin */
+.badge.bg-primary {
+  background: #cfe2ff !important;
+  color: #084298 !important;
+}
+.badge.bg-info {
+  background: #cfe2ff !important;
+  color: #084298 !important;
+}
+.badge.bg-secondary {
+  background: #e2e3e5 !important;
+  color: #41464b !important;
+}
+.badge.bg-light {
+  background: #f1f3f5 !important;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* === Buttons === */
+.btn {
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.85rem;
+}
+.btn-primary { background: var(--color-primary); border-color: var(--color-primary); }
+.btn-success { background: var(--color-success); border-color: var(--color-success); }
+.btn-outline-secondary {
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+.btn-outline-secondary:hover {
+  background: #e9ecef;
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* === Alerts === */
+.alert {
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  padding: 0.6rem 0.9rem;
+}
+.alert-info { background: #cfe2ff; border-color: #b6d4fe; color: #084298; }
+.alert-success { background: #d1e7dd; border-color: #badbcc; color: #0f5132; }
+.alert-warning { background: #fff3cd; border-color: #ffecb5; color: #664d03; }
+.alert-danger, .alert-error { background: #f8d7da; border-color: #f5c2c7; color: #842029; }
+
+/* === Form Controls === */
+.form-control, .form-select {
+  font-size: 0.84rem;
+  border-radius: var(--radius-sm);
+  border-color: var(--color-border);
+  padding: 0.4rem 0.7rem;
+  color: var(--color-text);
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(13,110,253,0.15);
+}
+.form-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+/* === Stat Cards === */
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+.stat-card .stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+.stat-card .stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+.stat-card .stat-detail {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.4rem;
+}
+
+/* === Page Headers === */
+.page-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.page-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+}
+.page-header p {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* === Section Titles === */
+.section-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.section-title i { color: var(--color-text-muted); }
+
+/* === Content padding === */
+.col-md-10 { padding: 1rem 1.5rem; }
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }

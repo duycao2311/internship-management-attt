@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Cập nhật Phân công Thực tập{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 border-top border-warning border-4 rounded-3">
+            <div class="card-body p-4">
+                <div class="mb-4 text-center border-bottom pb-4">
+                    <h3 class="fw-bold text-dark mb-1"><i class="bi bi-pencil-square text-warning pe-2"></i> Cập nhật Phân công</h3>
+                    {% with student=assignment.get_student %}
+                    <p class="text-muted small mb-0">Điều chỉnh Giảng viên linh hoạt cho riêng sinh viên <strong class="text-primary">{{ student.user.get_full_name|default:student.user.username }}</strong>.</p>
+                    {% endwith %}
+                </div>
+
+                <div class="row mb-4 bg-light rounded-3 p-3 border mx-0">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="small text-muted text-uppercase fw-bold mb-1">Sinh viên</div>
+                        {% with student=assignment.get_student %}
+                        {% if student %}
+                        <div class="fw-bold text-dark"><i class="bi bi-person-badge-fill me-1 text-secondary"></i> {{ student.user.get_full_name|default:student.user.username }}</div>
+                        <div class="small text-muted ms-4">MSV: {{ student.student_id|default:"N/A" }}</div>
+                        {% else %}
+                        <span class="text-muted fst-italic">Không xác định</span>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="small text-muted text-uppercase fw-bold mb-1">Doanh nghiệp Thực Tập</div>
+                        <div class="fw-bold text-dark"><i class="bi bi-building-fill me-1 text-secondary"></i> {{ assignment.get_company_name }}</div>
+                        <div class="small text-muted ms-4 text-truncate" title="{{ assignment.get_position_name }}">{{ assignment.get_position_name }}</div>
+                    </div>
+                </div>
+
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2 mb-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label for="{{ form.lecturer.id_for_label }}" class="form-label fw-bold text-secondary small text-uppercase">{{ form.lecturer.label }}</label>
+                        {{ form.lecturer }}
+                        {% if form.lecturer.errors %}<div class="text-danger small mt-1">{{ form.lecturer.errors.0 }}</div>{% endif %}
+                        <div class="form-text small opacity-75">Để trống nếu muốn quay lại trạng thái chưa có giảng viên.</div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.start_date.id_for_label }}" class="form-label fw-bold text-secondary small text-uppercase">{{ form.start_date.label }}</label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}<div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.end_date.id_for_label }}" class="form-label fw-bold text-secondary small text-uppercase">{{ form.end_date.label }}</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}<div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-5 form-check form-switch fs-6 bg-light p-3 rounded-3 border">
+                        {{ form.is_active }}
+                        <label class="form-check-label text-dark fw-bold" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+                    </div>
+
+                    <div class="text-end border-top pt-4">
+                        <a href="{% url 'admin_assignment_manager' %}" class="btn btn-light border shadow-sm me-2 px-3 fw-bold">Trở lại Danh sách</a>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm px-4"><i class="bi bi-floppy-fill"></i> Lưu Chỉnh sửa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -77,6 +77,8 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+db-this-will-be-used
+media/
 
 # Flask stuff:
 instance/

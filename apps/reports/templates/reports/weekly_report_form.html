@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Nộp Báo cáo Tuần{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0 fw-bold">Soạn Báo cáo Hàng tuần</h5>
+            </div>
+            <div class="card-body p-4 border border-primary border-top-0 rounded-bottom">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'reports:weekly_report_list' %}" class="btn btn-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-success px-4 fw-bold">Lưu Báo cáo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

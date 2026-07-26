@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}Chi tiết Tiến độ Thực tập{% endblock %}
+{% block content %}
+<div class="mt-4 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'reports:statistics_dashboard' %}" class="text-decoration-none">Thống kê</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết tiến độ</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            {% with student=assignment.get_student %}
+            <h2>Hồ sơ: <span class="text-primary">{{ student.user.get_full_name|default:student.user.username }}</span></h2>
+            <p class="text-muted mb-0">
+                <i class="bi bi-building"></i> <strong>{{ assignment.get_company_name }}</strong> &nbsp;|&nbsp;
+                <i class="bi bi-person-badge"></i> Giảng viên: <strong>{{ assignment.lecturer.user.get_full_name|default:assignment.lecturer.user.username|default:"N/A" }}</strong> &nbsp;|&nbsp;
+                <i class="bi bi-person-check"></i> Mentor: <strong>{{ assignment.mentor_group.mentor.user.get_full_name|default:assignment.mentor_group.mentor.user.username|default:"N/A" }}</strong>
+            </p>
+            {% endwith %}
+        </div>
+        <div class="text-end">
+            <h4 class="mb-1">Điểm tổng kết: <span class="text-primary">{{ score_info.total_score|default:"-" }}</span></h4>
+            <span class="badge {% if score_info.is_passed %}bg-success{% else %}bg-danger{% endif %} fs-6">
+                {% if score_info.is_passed %}Đạt{% else %}Chưa đạt{% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-12 mb-4">
+        <h4 class="mb-3 text-primary"><i class="bi bi-calendar-range"></i> 1. Nhật ký Báo cáo Tuần (Weekly)</h4>
+        <div class="card shadow-sm border-0 border-top border-primary border-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3 text-center" width="5%">Tuần</th>
+                                <th width="30%">Tiêu đề</th>
+                                <th class="text-center" width="15%">Nộp lúc</th>
+                                <th class="text-center" width="15%">Điểm Mentor</th>
+                                <th class="text-center" width="15%">Điểm Giảng viên</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in weekly_reports %}
+                            <tr>
+                                <td class="ps-3 text-center fw-bold">{{ report.week_number }}</td>
+                                <td>
+                                    <div class="fw-medium">{{ report.title }}</div>
+                                    {% if report.is_late %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.7rem">Nộp muộn</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center text-muted small">
+                                    {% if report.is_submitted %}
+                                        {{ report.submitted_at|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        <span class="text-danger fst-italic">Chưa nộp</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if report.mentor_grade %}
+                                        <span class="badge bg-info text-dark fs-6">{{ report.mentor_grade.score }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if report.lecturer_grade %}
+                                        <span class="badge bg-success fs-6">{{ report.lecturer_grade.score }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Sinh viên chưa nộp báo cáo tuần nào.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4 mb-5">
+    <div class="col-lg-12">
+        <h4 class="mb-3 text-danger"><i class="bi bi-flag-fill"></i> 2. Báo cáo Tổng kết Chung cuộc (Final Report)</h4>
+        {% if final_report %}
+            <div class="card shadow-sm border-0 border-top border-danger border-4">
+                <div class="card-body p-4 bg-light">
+                     <div class="row">
+                         <div class="col-md-8">
+                             <h5 class="fw-bold mb-1">{{ final_report.title }}</h5>
+                             <p class="text-muted small mb-3">
+                                 <i class="bi bi-clock-history"></i> Bấm nộp lúc: {{ final_report.submitted_at|date:"d/m/Y H:i:s" }}
+                                 {% if final_report.is_late %}<span class="badge bg-warning text-dark ms-2">Nộp muộn</span>{% endif %}
+                             </p>
+                             
+                             {% if final_report.attachment %}
+                                 <a href="{{ final_report.attachment.url }}" class="btn btn-sm btn-outline-danger" target="_blank"><i class="bi bi-download"></i> Tải file đính kèm</a>
+                             {% endif %}
+                         </div>
+                         <div class="col-md-4 border-start">
+                             <div class="d-flex justify-content-between mb-2">
+                                 <span class="text-muted">Điểm Mentor:</span>
+                                 <strong class="text-info fs-5">{% if final_report.mentor_grade %}{{ final_report.mentor_grade.score }}{% else %} Chưa chấm {% endif %}</strong>
+                             </div>
+                             <div class="d-flex justify-content-between">
+                                 <span class="text-muted">Điểm Giảng viên:</span>
+                                 <strong class="text-success fs-5">{% if final_report.lecturer_grade %}{{ final_report.lecturer_grade.score }}{% else %} Chưa chấm {% endif %}</strong>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-secondary border-0 text-center py-4 text-muted border-top border-secondary border-4">
+                Sinh viên chưa nộp Báo cáo Tổng kết cuối kỳ.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

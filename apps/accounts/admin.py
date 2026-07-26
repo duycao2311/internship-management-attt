@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, StudentProfile, DepartmentProfile, LecturerProfile
+from .models import User, StudentProfile, DepartmentProfile, LecturerProfile, MentorProfile
 
 from django.contrib.auth.admin import UserAdmin
 
@@ -25,3 +25,8 @@ class DepartmentProfileAdmin(admin.ModelAdmin):
 @admin.register(LecturerProfile)
 class LecturerProfileAdmin(admin.ModelAdmin):
 	list_display = ("user", "full_name", "faculty", "phone", "specialization")
+
+@admin.register(MentorProfile)
+class MentorProfileAdmin(admin.ModelAdmin):
+	list_display = ("user", "department", "full_name", "phone", "job_title")
+	list_filter = ("department",)

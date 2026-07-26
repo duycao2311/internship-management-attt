@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} - Quản lý Phân công{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 border-top border-primary border-4 rounded-3">
+            <div class="card-body p-4">
+                <div class="mb-4 text-center">
+                    <h3 class="fw-bold text-dark mb-1"><i class="bi bi-diagram-3-fill text-primary pe-2"></i> {{ action }}</h3>
+                    <p class="text-muted small">Tùy biến nhân sự giảng viên trên toàn hệ sinh thái doanh nghiệp liên kết.</p>
+                </div>
+
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2 mb-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-bold text-secondary small text-uppercase">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ field.errors.0 }}
+                        </div>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <div class="form-text small">{{ field.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex justify-content-between mt-5 pt-3">
+                        {% if mapping %}
+                        <button type="button" class="btn btn-outline-danger shadow-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash3-fill"></i> Gỡ Phân công</button>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+                        <div>
+                            <a href="{% url 'admin_mapping_manager' %}" class="btn btn-light border shadow-sm me-2 px-3 fw-bold">Hủy</a>
+                            <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4"><i class="bi bi-floppy-fill"></i> Lưu Thông tin</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if mapping %}
+<!-- Modal Xác nhận Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-danger border-bottom border-3">
+        <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Xác nhận Hủy Liên kết</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-4">
+        Khẳng định xóa phân công giảng viên <strong>{{ mapping.lecturer.user.get_full_name|default:mapping.lecturer.user.username }}</strong> khỏi doanh nghiệp đầu não <strong>{{ mapping.department }}</strong>?<br>
+        <div class="alert alert-warning mt-3 mb-0 small border-0">
+            <i class="bi bi-info-circle-fill pe-1"></i> Lưu ý: Hành động này không tự động xóa báo cáo đang có của sinh viên. Sinh viên tại doanh nghiệp này sẽ chuyển sang trạng thái "Chưa có giảng viên hướng dẫn".
+        </div>
+      </div>
+      <div class="modal-footer border-0 bg-light">
+        <button type="button" class="btn btn-light shadow-sm fw-bold border" data-bs-dismiss="modal">Đóng</button>
+        <form action="{% url 'admin_mapping_delete' mapping.id %}" method="post" class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger fw-bold shadow-sm"><i class="bi bi-trash-fill"></i> Có, Gỡ Phân công</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
